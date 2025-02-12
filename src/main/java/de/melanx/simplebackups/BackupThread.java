@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.neoforged.fml.i18n.I18nManager;
+import net.neoforged.fml.i18n.FMLTranslations;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,7 +204,8 @@ public class BackupThread extends Thread {
             }
         }
 
-        return Component.literal(String.format(Optional.ofNullable(I18nManager.loadTranslations("en_us").get(key)).orElse(key), parameters));
+        //noinspection UnstableApiUsage
+        return Component.literal(String.format(FMLTranslations.getPattern(key, () -> key), parameters));
     }
 
     // vanilla copy with modifications
@@ -226,7 +227,8 @@ public class BackupThread extends Thread {
             Path levelName = Paths.get(this.storageSource.levelId);
             Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.levelId).toRealPath();
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                @Nonnull
+                public FileVisitResult visitFile(Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     if (file.endsWith("session.lock")) {
                         return FileVisitResult.CONTINUE;
                     }
