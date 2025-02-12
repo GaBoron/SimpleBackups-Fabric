@@ -51,10 +51,10 @@ mod.configure {
             type releaseType
         }
         curseforge {
-            projectId 446691
+            projectId 583228
         }
         modrinth {
-            projectId 'por2AZc5'
+            projectId 'fzSKSXVK'
         }
     }
 }
