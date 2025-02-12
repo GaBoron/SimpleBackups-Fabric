@@ -1,30 +1,30 @@
 modLoader="javafml"
-loaderVersion="${loader_version_range}"
-license="${license}"
-issueTrackerURL = "https://github.com/ChaoticTrials/SimpleBackups/issues"
+loaderVersion = "[4,)"
+license = "${mod.license}"
+issueTrackerURL = "${mod.issue_url}"
 
 [[mods]]
-modId = "${modid}"
-version = "${mod_version}"
+modId = "${mod.modid}"
+version = "${mod.version}"
 displayName = "Simple Backups"
+displayURL = "${mod.source_url}"
 updateJSONURL = "https://assets.melanx.de/updates/simple-backups.json"
-displayURL = "https://modrinth.com/user/MelanX"
 authors = "MelanX"
 displayTest = "IGNORE_ALL_VERSION"
 description = '''
 A simple mod to create scheduled backups.
 '''
 
-[[dependencies.${ modid }]]
+[[dependencies.${ mod.modid }]]
     modId = "neoforge"
     type = "required"
-    versionRange = "[${neo_version},)"
+    versionRange = "[${mod.neoforge},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${modid}]]
+[[dependencies.${ mod.modid }]]
     modId="minecraft"
     type="required"
-    versionRange="[${minecraft_version},)"
+    versionRange = "[${mod.minecraft},)"
     ordering="NONE"
     side="BOTH"
