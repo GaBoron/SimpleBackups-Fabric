@@ -1,25 +1,24 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.0.2'
+    id 'org.moddingx.modgradle.meta' version '5.0.3'
 }
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'beta'
-var baseVersion = '21.1'
-var modBaseVersion = '1.21-4.0'
+var baseVersion = '21.5'
 mod.configure {
     modid 'simplebackups'
     group 'de.melanx'
     versioning {
         if (dev) {
             def gitCommitHash = ['git', 'rev-parse', 'HEAD'].execute().text.trim()
-            constant modBaseVersion + (gitCommitHash ? "-${gitCommitHash}" : '')
+            constant baseVersion + (gitCommitHash ? "-${gitCommitHash}" : '')
         } else {
-            base modBaseVersion
+            base baseVersion
             maven 'https://maven.melanx.de/release'
         }
     }
 
-    neoforge "${baseVersion}.115"
+    neoforge "${baseVersion}.0-beta"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'

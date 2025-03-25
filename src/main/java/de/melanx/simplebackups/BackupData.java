@@ -1,12 +1,12 @@
 package de.melanx.simplebackups;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import de.melanx.simplebackups.config.CommonConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
-
-import javax.annotation.Nonnull;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 public class BackupData extends SavedData {
 
@@ -16,19 +16,25 @@ public class BackupData extends SavedData {
     private boolean merging;
     private boolean usesTickCounter;
 
-    private BackupData() {
-        // use BackupData.get
+    public static final Codec<BackupData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.LONG.fieldOf("lastSaved").forGetter(BackupData::getLastSaved),
+                    Codec.LONG.fieldOf("lastFullBackup").forGetter(BackupData::getLastFullBackup),
+                    Codec.BOOL.fieldOf("paused").forGetter(BackupData::isPaused),
+                    Codec.BOOL.fieldOf("merging").forGetter(BackupData::isMerging),
+                    Codec.BOOL.fieldOf("usesTickCounter").forGetter(BackupData::usesTickCounter)
+            )
+            .apply(instance, BackupData::new));
+
+    public static SavedDataType<BackupData> type() {
+        return new SavedDataType<>("simplebackups", context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter()), context -> CODEC);
     }
 
-    @Nonnull
-    @Override
-    public CompoundTag save(@Nonnull CompoundTag nbt, @Nonnull HolderLookup.Provider provider) {
-        nbt.putLong("lastSaved", this.lastSaved);
-        nbt.putLong("lastFullBackup", this.lastFullBackup);
-        nbt.putBoolean("paused", this.paused);
-        nbt.putBoolean("merging", this.merging);
-        nbt.putBoolean("usesTickCounter", this.usesTickCounter);
-        return nbt;
+    private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter) {
+        this.lastSaved = lastSaved;
+        this.lastFullBackup = lastFullBackup;
+        this.paused = paused;
+        this.merging = merging;
+        this.usesTickCounter = usesTickCounter;
     }
 
     public static BackupData get(ServerLevel level) {
@@ -36,16 +42,7 @@ public class BackupData extends SavedData {
     }
 
     public static BackupData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(BackupData.factory(), "simplebackups");
-    }
-
-    public BackupData load(@Nonnull CompoundTag nbt, @Nonnull HolderLookup.Provider provider) {
-        this.lastSaved = nbt.getLong("lastSaved");
-        this.lastFullBackup = nbt.getLong("lastFullBackup");
-        this.paused = nbt.getBoolean("paused");
-        this.merging = nbt.getBoolean("merging");
-        this.usesTickCounter = nbt.getBoolean("usesTickCounter");
-        return this;
+        return server.overworld().getDataStorage().computeIfAbsent(BackupData.type());
     }
 
     public void setPaused(boolean paused) {
@@ -94,9 +91,5 @@ public class BackupData extends SavedData {
     public void setUsesTickCounter(boolean usesTickCounter) {
         this.usesTickCounter = usesTickCounter;
         this.setDirty();
-    }
-
-    private static SavedData.Factory<BackupData> factory() {
-        return new SavedData.Factory<>(BackupData::new, (nbt, provider) -> new BackupData().load(nbt, provider));
     }
 }

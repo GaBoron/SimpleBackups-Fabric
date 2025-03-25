@@ -1,13 +1,15 @@
 package de.melanx.simplebackups.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 public class ClientEventHandler {
 
@@ -23,16 +25,16 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
+    public void onRenderText(RegisterGuiLayersEvent event) {
+        event.registerBelow(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath("simplebackups", "penis"), this::renderText);
+    }
+
+    private void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (!isPaused) {
             return;
         }
 
-        GuiGraphics guiGraphics = event.getGuiGraphics();
         guiGraphics.fill(3, 3, 20, 20, 0);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, 0);
-        RenderSystem.disableBlend();
     }
 }

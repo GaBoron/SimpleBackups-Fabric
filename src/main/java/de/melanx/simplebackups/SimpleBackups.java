@@ -30,7 +30,7 @@ public class SimpleBackups {
         modEventBus.addListener(this::onRegisterPayloadHandler);
 
         if (dist.isClient()) {
-            NeoForge.EVENT_BUS.register(new ClientEventHandler());
+            modEventBus.register(new ClientEventHandler());
         }
     }
 

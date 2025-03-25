@@ -67,7 +67,7 @@ public class BackupThread extends Thread {
         }
         this.setName("SimpleBackups");
         this.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        this.backupPath = CommonConfig.getOutputPath(this.storageSource.levelId);
+        this.backupPath = CommonConfig.getOutputPath(this.storageSource.getLevelId());
     }
 
     public static boolean tryCreateBackup(MinecraftServer server) {
@@ -211,8 +211,8 @@ public class BackupThread extends Thread {
     // vanilla copy with modifications
     private long makeWorldBackup() throws IOException {
         this.storageSource.checkLock();
-        String fileName = this.storageSource.levelId + "_" + LocalDateTime.now().format(FORMATTER);
-        Path path = CommonConfig.getOutputPath(this.storageSource.levelId);
+        String fileName = this.storageSource.getLevelId() + "_" + LocalDateTime.now().format(FORMATTER);
+        Path path = CommonConfig.getOutputPath(this.storageSource.getLevelId());
 
         try {
             Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
@@ -224,8 +224,8 @@ public class BackupThread extends Thread {
 
         try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)))) {
             zipStream.setLevel(CommonConfig.getCompressionLevel());
-            Path levelName = Paths.get(this.storageSource.levelId);
-            Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.levelId).toRealPath();
+            Path levelName = Paths.get(this.storageSource.getLevelId());
+            Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.getLevelId()).toRealPath();
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
                 @Nonnull
                 public FileVisitResult visitFile(Path file, @Nonnull BasicFileAttributes attrs) throws IOException {

@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nonnull;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,9 +81,10 @@ public class MergeCommand implements Command<CommandSourceStack> {
                 Map<String, Path> zipFiles = new HashMap<>();
 
                 // Walk the file tree of the output path
-                Files.walkFileTree(CommonConfig.getOutputPath(this.commandContext.getSource().getServer().storageSource.levelId), new SimpleFileVisitor<>() {
+                Files.walkFileTree(CommonConfig.getOutputPath(this.commandContext.getSource().getServer().storageSource.getLevelId()), new SimpleFileVisitor<>() {
+                    @Nonnull
                     @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    public FileVisitResult visitFile(Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                         MergingThread.this.processFile(file, zipFiles);
                         return FileVisitResult.CONTINUE;
                     }
