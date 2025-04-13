@@ -26,7 +26,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onRenderText(RegisterGuiLayersEvent event) {
-        event.registerBelow(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath("simplebackups", "penis"), this::renderText);
+        event.registerBelow(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath("simplebackups", "pause"), this::renderText);
     }
 
     private void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
