@@ -3,7 +3,7 @@ plugins {
 }
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
-var releaseType = 'beta'
+var releaseType = 'release'
 var baseVersion = '21.5'
 mod.configure {
     modid 'simplebackups'
@@ -48,6 +48,7 @@ mod.configure {
     upload {
         all {
             type releaseType
+            version '1.21.5'
         }
         curseforge {
             projectId 583228
