@@ -1,6 +1,6 @@
 package de.melanx.simplebackups;
 
-import de.melanx.simplebackups.client.ClientEventHandler;
+import de.melanx.simplebackups.client.ClientInit;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.network.Pause;
@@ -10,8 +10,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -30,10 +28,9 @@ public class SimpleBackups {
         NeoForge.EVENT_BUS.register(new EventListener());
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onRegisterPayloadHandler);
-        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 
         if (dist.isClient()) {
-            NeoForge.EVENT_BUS.register(new ClientEventHandler());
+            ClientInit.init(modEventBus, modContainer);
         }
     }
 
