@@ -19,6 +19,10 @@
   "simplebackups.configuration.fullBackupTimer": "Vollständiger Backup-Timer",
   "simplebackups.configuration.compressionLevel": "Kompressionsstufe",
   "simplebackups.configuration.outputPath": "Ausgabepfad",
+  "simplebackups.configuration.to_ignore": "Zu Ignorieren",
+  "simplebackups.configuration.ignored_paths": "Pfade zum Ignorieren",
+  "simplebackups.configuration.ignored_files": "Dateien zum Ignorieren",
+  "simplebackups.configuration.ignored_files_regex": "Ignorier-RegEx",
   "simplebackups.configuration.mod_compat": "Mod-Kompatibilität",
   "simplebackups.configuration.mc2discord": "Mc2Discord",
   "simplebackups.configuration.commandsCheatsDisabled": "Befehle für Nicht-OPs"
