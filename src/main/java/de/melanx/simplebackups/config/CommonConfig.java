@@ -51,7 +51,10 @@ public class CommonConfig {
                 .defineInRange("backupsToKeep", 10, 1, Short.MAX_VALUE);
         timer = builder.comment("The time between two backups in minutes", "5 = each 5 minutes", "60 = each hour", "1440 = each day")
                 .defineInRange("timer", 120, 1, Short.MAX_VALUE);
-        compressionLevel = builder.comment("The compression level, 0 is no compression (less cpu usage) and takes a lot of space, 9 is best compression (most cpu usage) and takes less space. -1 is default")
+        compressionLevel = builder.comment("Compression level:",
+                        "  0  = no compression (low CPU usage, larger files)",
+                        "  9  = maximum compression (high CPU usage, smaller files)",
+                        "  -1 = default; balances speed and compression (recommended)")
                 .defineInRange("compressionLevel", Deflater.DEFAULT_COMPRESSION, Math.min(Deflater.DEFAULT_COMPRESSION, Deflater.NO_COMPRESSION), Deflater.BEST_COMPRESSION);
         sendMessages = builder.comment("Should message be sent when backup is in the making?")
                 .define("sendMessages", true);
