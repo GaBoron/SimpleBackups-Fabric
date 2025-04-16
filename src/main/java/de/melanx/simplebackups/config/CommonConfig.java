@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Deflater;
 
 public class CommonConfig {
@@ -32,6 +34,9 @@ public class CommonConfig {
     private static ForgeConfigSpec.BooleanValue noPlayerBackups;
     private static ForgeConfigSpec.BooleanValue createSubDirs;
     private static ForgeConfigSpec.BooleanValue useTickCounter;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> ignoredPaths;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> ignoredFiles;
+    private static ForgeConfigSpec.ConfigValue<String> ignoredFilesRegex;
 
     private static ForgeConfigSpec.BooleanValue mc2discord;
 
@@ -64,6 +69,24 @@ public class CommonConfig {
         useTickCounter = builder.comment("Use an internal tick counter instead of the real world time. The value of the timer will be converted to ticks. When the timer is over, the backup will be created.",
                         "Keep in mind that lagging servers will result in larger gaps between two backups, e.g. 10 FPS in average will result in double the time set between backups.")
                 .define("useTickCounter", false);
+
+        builder.comment("WARNING Please check your configuration before using permanently.",
+                        "The backup system will ignore these paths and files.")
+                .push("to_ignore");
+        ignoredPaths = builder.comment("All directories that should be excluded from backups",
+                        "Format: Enter paths relative to the world directory (e.g., 'logs', 'data/cache')",
+                        "All files within these directories will also be excluded")
+                .defineList("ignored_paths", List.of(), obj -> obj instanceof String);
+        ignoredFiles = builder.comment("Specific files that should be excluded from backups",
+                        "Format: Enter complete file paths relative to the world directory (e.g., 'level.dat_old', 'stats/player.json')",
+                        "Use this for individual files rather than entire directories")
+                .defineList("ignored_files", List.of(), obj -> obj instanceof String);
+        ignoredFilesRegex = builder.comment("Regular expression pattern to exclude matching files from backups",
+                        "All files with paths matching this pattern will be skipped",
+                        "Example: '.*\\.temp$' excludes all files ending with .temp",
+                        "Leave empty to disable regex-based file exclusion")
+                .define("ignored_files_regex", "");
+        builder.pop();
 
         builder.push("mod_compat");
         mc2discord = builder.comment("Should backup notifications be sent to Discord by using mc2discord? (needs to be installed)")
@@ -127,6 +150,28 @@ public class CommonConfig {
 
     public static boolean sendMessages() {
         return sendMessages.get();
+    }
+
+    public static List<Path> getIgnoredPaths() {
+        List<Path> paths = new ArrayList<>();
+        for (String path : ignoredPaths.get()) {
+            paths.add(Path.of(path));
+        }
+
+        return paths;
+    }
+
+    public static List<Path> getIgnoredFiles() {
+        List<Path> paths = new ArrayList<>();
+        for (String path : ignoredFiles.get()) {
+            paths.add(Path.of(path));
+        }
+
+        return paths;
+    }
+
+    public static String getIgnoredFilesRegex() {
+        return ignoredFilesRegex.get();
     }
 
     public static boolean useTickCounter() {

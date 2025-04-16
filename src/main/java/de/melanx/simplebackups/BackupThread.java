@@ -226,9 +226,21 @@ public class BackupThread extends Thread {
         try {
             Path levelName = Paths.get(this.storageSource.levelId);
             Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.levelId).toRealPath();
+
+            List<Path> ignoredPaths = CommonConfig.getIgnoredPaths();
+            List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();
+            String ignoredFilesRegex = CommonConfig.getIgnoredFilesRegex();
+            boolean ignoreSomething = !ignoredPaths.isEmpty() || !ignoredFiles.isEmpty() || !ignoredFilesRegex.isEmpty();
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                @Nonnull
+                public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     if (!file.endsWith("session.lock")) {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    if (ignoreSomething && this.shouldSkipFile(levelPath.relativize(file))) {
+                        SimpleBackups.LOGGER.debug("Skipping file: {}", file);
                         long lastModified = file.toFile().lastModified();
                         if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
                             String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
@@ -240,6 +252,16 @@ public class BackupThread extends Thread {
                     }
 
                     return FileVisitResult.CONTINUE;
+                }
+
+                private boolean shouldSkipFile(Path relativePath) {
+                    return ignoredPaths.contains(relativePath.getParent())
+                            || ignoredFiles.contains(relativePath)
+                            || (!ignoredFilesRegex.isEmpty() && this.getNormalizedPath(relativePath).matches(ignoredFilesRegex));
+                }
+
+                private String getNormalizedPath(Path path) {
+                    return path.toString().replace('\\', '/');
                 }
             });
         } catch (IOException e) {
