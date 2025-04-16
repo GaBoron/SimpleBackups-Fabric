@@ -226,10 +226,21 @@ public class BackupThread extends Thread {
             zipStream.setLevel(CommonConfig.getCompressionLevel());
             Path levelName = Paths.get(this.storageSource.getLevelId());
             Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.getLevelId()).toRealPath();
+
+            List<Path> ignoredPaths = CommonConfig.getIgnoredPaths();
+            List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();
+            String ignoredFilesRegex = CommonConfig.getIgnoredFilesRegex();
+            boolean ignoreSomething = !ignoredPaths.isEmpty() || !ignoredFiles.isEmpty() || !ignoredFilesRegex.isEmpty();
+
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
                 @Nonnull
-                public FileVisitResult visitFile(Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     if (file.endsWith("session.lock")) {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    if (ignoreSomething && this.shouldSkipFile(levelPath.relativize(file))) {
+                        SimpleBackups.LOGGER.debug("Skipping file: {}", file);
                         return FileVisitResult.CONTINUE;
                     }
 
@@ -243,6 +254,16 @@ public class BackupThread extends Thread {
                     }
 
                     return FileVisitResult.CONTINUE;
+                }
+
+                private boolean shouldSkipFile(Path relativePath) {
+                    return ignoredPaths.contains(relativePath.getParent())
+                            || ignoredFiles.contains(relativePath)
+                            || (!ignoredFilesRegex.isEmpty() && this.getNormalizedPath(relativePath).matches(ignoredFilesRegex));
+                }
+
+                private String getNormalizedPath(Path path) {
+                    return path.toString().replace('\\', '/');
                 }
             });
         }
