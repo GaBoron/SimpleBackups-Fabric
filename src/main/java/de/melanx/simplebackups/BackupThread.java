@@ -187,6 +187,7 @@ public class BackupThread extends Thread {
 
         Path outputFile = path.resolve(FileUtil.findAvailableName(path, fileName, ".zip"));
         final ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)));
+        zipStream.setLevel(ConfigHandler.getCompressionLevel());
 
         try {
             Path levelName = Paths.get(this.storageSource.levelId);
