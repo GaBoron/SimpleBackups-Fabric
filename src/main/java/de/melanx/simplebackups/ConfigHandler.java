@@ -2,6 +2,7 @@ package de.melanx.simplebackups;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ public class ConfigHandler {
     private static ForgeConfigSpec.BooleanValue sendMessages;
     private static ForgeConfigSpec.ConfigValue<String> maxDiskSize;
     private static ForgeConfigSpec.ConfigValue<String> outputPath;
+    private static ForgeConfigSpec.BooleanValue createSubDirs;
 
     private static ForgeConfigSpec.BooleanValue mc2discord;
 
@@ -53,6 +55,9 @@ public class ConfigHandler {
                 .define("maxDiskSize", "25 GB");
         outputPath = builder.comment("Used to define the output path.")
                 .define("outputPath", "simplebackups");
+        createSubDirs = builder.comment("Should sub-directories be generated for each world?",
+                        "Keep in mind that all configs above, including backupsToKeep and maxDiskSize, will be calculated for each sub directory.")
+                .define("createSubDirs", false);
 
         builder.push("mod_compat");
         mc2discord = builder.comment("Should backup notifications be sent to Discord by using mc2discord? (needs to be installed)")
@@ -91,12 +96,22 @@ public class ConfigHandler {
         return StorageSize.getBytes(s);
     }
 
-    public static Path getOutputPath() {
+//    public static Path getOutputPath() {
+//        return getOutputPath(null);
+//    }
+
+    public static Path getOutputPath(@Nullable String levelId) {
+        Path base = Paths.get(outputPath.get());
+        boolean withSubDir = levelId != null && !levelId.isEmpty() && createSubDirs.get();
+
+        Path resolvedBase;
         try {
-            return Paths.get(outputPath.get()).toRealPath();
+            resolvedBase = base.toRealPath();
         } catch (IOException e) {
-            return Paths.get(outputPath.get());
+            resolvedBase = base;
         }
+
+        return withSubDir ? resolvedBase.resolve(levelId) : resolvedBase;
     }
 
     public static boolean onlyModified() {

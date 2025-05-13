@@ -51,6 +51,7 @@ public class BackupThread extends Thread {
     private final long lastSaved;
     private final boolean fullBackup;
     private final LevelStorageSource.LevelStorageAccess storageSource;
+    private final Path backupPath;
 
     private BackupThread(@Nonnull MinecraftServer server, boolean quiet, @Nullable BackupData backupData) {
         this.server = server;
@@ -65,6 +66,7 @@ public class BackupThread extends Thread {
         }
         this.setName("SimpleBackups");
         this.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        this.backupPath = ConfigHandler.getOutputPath(this.storageSource.levelId);
     }
 
     public static boolean tryCreateBackup(MinecraftServer server) {
@@ -89,7 +91,7 @@ public class BackupThread extends Thread {
     }
 
     public void deleteFiles() {
-        File backups = ConfigHandler.getOutputPath().toFile();
+        File backups = this.backupPath.toFile();
         if (backups.isDirectory()) {
             List<File> files = new ArrayList<>(Arrays.stream(Objects.requireNonNull(backups.listFiles())).filter(File::isFile).toList());
             if (files.size() >= ConfigHandler.getBackupsToKeep()) {
@@ -106,10 +108,10 @@ public class BackupThread extends Thread {
         }
     }
 
-    public static void saveStorageSize() {
+    public void saveStorageSize() {
         try {
-            while (BackupThread.getOutputFolderSize() > ConfigHandler.getMaxDiskSize()) {
-                File[] files = ConfigHandler.getOutputPath().toFile().listFiles();
+            while (this.getOutputFolderSize() > ConfigHandler.getMaxDiskSize()) {
+                File[] files = this.backupPath.toFile().listFiles();
                 if (Objects.requireNonNull(files).length == 1) {
                     LOGGER.error("Cannot delete old files to save disk space. Only one backup file left!");
                     return;
@@ -132,21 +134,21 @@ public class BackupThread extends Thread {
         try {
             this.deleteFiles();
 
-            Files.createDirectories(ConfigHandler.getOutputPath());
+            Files.createDirectories(this.backupPath);
             long start = System.currentTimeMillis();
             this.broadcast("simplebackups.backup_started", Style.EMPTY.withColor(ChatFormatting.GOLD));
             long size = this.makeWorldBackup();
             long end = System.currentTimeMillis();
             String time = Timer.getTimer(end - start);
-            BackupThread.saveStorageSize();
-            this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(ChatFormatting.GOLD), time, StorageSize.getFormattedSize(size), StorageSize.getFormattedSize(BackupThread.getOutputFolderSize()));
+            this.saveStorageSize();
+            this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(ChatFormatting.GOLD), time, StorageSize.getFormattedSize(size), StorageSize.getFormattedSize(this.getOutputFolderSize()));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static long getOutputFolderSize() throws IOException {
-        File[] files = ConfigHandler.getOutputPath().toFile().listFiles();
+    private long getOutputFolderSize() throws IOException {
+        File[] files = this.backupPath.toFile().listFiles();
         long size = 0;
         try {
             for (File file : Objects.requireNonNull(files)) {
@@ -188,7 +190,7 @@ public class BackupThread extends Thread {
     private long makeWorldBackup() throws IOException {
         this.storageSource.checkLock();
         String fileName = this.storageSource.levelId + "_" + LocalDateTime.now().format(FORMATTER);
-        Path path = ConfigHandler.getOutputPath();
+        Path path = this.backupPath;
 
         try {
             Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
@@ -204,7 +206,8 @@ public class BackupThread extends Thread {
             Path levelName = Paths.get(this.storageSource.levelId);
             Path levelPath = this.storageSource.levelPath;
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                @Nonnull
+                public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     if (!file.endsWith("session.lock")) {
                         long lastModified = file.toFile().lastModified();
                         if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
