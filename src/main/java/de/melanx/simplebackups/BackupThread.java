@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,13 +49,20 @@ public class BackupThread extends Thread {
     private final MinecraftServer server;
     private final boolean quiet;
     private final long lastSaved;
+    private final boolean fullBackup;
     private final LevelStorageSource.LevelStorageAccess storageSource;
 
-    private BackupThread(@Nonnull MinecraftServer server, boolean quiet, long lastSaved) {
+    private BackupThread(@Nonnull MinecraftServer server, boolean quiet, @Nullable BackupData backupData) {
         this.server = server;
         this.storageSource = server.storageSource;
         this.quiet = quiet;
-        this.lastSaved = lastSaved;
+        if (backupData == null) {
+            this.lastSaved = 0;
+            this.fullBackup = true;
+        } else {
+            this.lastSaved = backupData.getLastSaved();
+            this.fullBackup = !ConfigHandler.onlyModified() || System.currentTimeMillis() - ConfigHandler.getFullBackupTimer() > backupData.getLastFullBackup();
+        }
         this.setName("SimpleBackups");
         this.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
     }
@@ -62,9 +70,12 @@ public class BackupThread extends Thread {
     public static boolean tryCreateBackup(MinecraftServer server) {
         BackupData backupData = BackupData.get(server);
         if (ConfigHandler.isEnabled() && !backupData.isPaused() && System.currentTimeMillis() - ConfigHandler.getTimer() > backupData.getLastSaved()) {
-            BackupThread thread = new BackupThread(server, false, backupData.getLastSaved());
+            BackupThread thread = new BackupThread(server, false, backupData);
             thread.start();
             backupData.updateSaveTime(System.currentTimeMillis());
+            if (thread.fullBackup) {
+                backupData.updateFullBackupTime(System.currentTimeMillis());
+            }
 
             return true;
         }
@@ -73,7 +84,7 @@ public class BackupThread extends Thread {
     }
 
     public static void createBackup(MinecraftServer server, boolean quiet) {
-        BackupThread thread = new BackupThread(server, quiet, 0);
+        BackupThread thread = new BackupThread(server, quiet, null);
         thread.start();
     }
 
@@ -196,7 +207,7 @@ public class BackupThread extends Thread {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (!file.endsWith("session.lock")) {
                         long lastModified = file.toFile().lastModified();
-                        if (!ConfigHandler.onlyModified() || lastModified - BackupThread.this.lastSaved > 0) {
+                        if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
                             String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
                             ZipEntry zipentry = new ZipEntry(completePath);
                             zipStream.putNextEntry(zipentry);

@@ -19,6 +19,7 @@ public class ConfigHandler {
 
     private static ForgeConfigSpec.BooleanValue enabled;
     private static ForgeConfigSpec.BooleanValue onlyModified;
+    private static ForgeConfigSpec.IntValue fullBackupTimer;
     private static ForgeConfigSpec.IntValue backupsToKeep;
     private static ForgeConfigSpec.IntValue timer;
     private static ForgeConfigSpec.IntValue compressionLevel;
@@ -33,6 +34,8 @@ public class ConfigHandler {
                 .define("enabled", true);
         onlyModified = builder.comment("Should only changed files be backed up? Useful for large worlds. Keep in mind that old backups are required for a complete backup. Alternatively, you could run the command to create a new complete backup.")
                 .define("onlyModified", false);
+        fullBackupTimer = builder.comment("How often should a full backup be created if only modified files should be saved? This creates a full backup when x minutes are over and the next backup needs to be done. Once a year is default.")
+                .defineInRange("fullBackupTimer", 525960, 1, 5259600);
         backupsToKeep = builder.comment("The max amount of backup files to keep.")
                 .defineInRange("backupsToKeep", 10, 1, Short.MAX_VALUE);
         timer = builder.comment("The time between two backups in minutes", "5 = each 5 minutes", "60 = each hour", "1440 = each day")
@@ -68,6 +71,11 @@ public class ConfigHandler {
     // converts config value from milliseconds to minutes
     public static int getTimer() {
         return timer.get() * 60 * 1000;
+    }
+
+    // converts config value from milliseconds to minutes
+    public static int getFullBackupTimer() {
+        return fullBackupTimer.get() * 60 * 1000;
     }
 
     public static int getCompressionLevel() {
