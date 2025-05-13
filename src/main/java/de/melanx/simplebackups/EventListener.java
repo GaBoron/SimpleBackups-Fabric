@@ -41,7 +41,7 @@ public class EventListener {
 
     @SubscribeEvent
     public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer().getServer() != null) {
+        if (ConfigHandler.isEnabled() && event.getPlayer().getServer() != null) {
             SimpleBackups.network().pause(event.getPlayer(), BackupData.get(event.getPlayer().getServer()).isPaused());
         }
     }
