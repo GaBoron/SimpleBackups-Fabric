@@ -23,6 +23,7 @@ public class SimpleBackups {
 
     public SimpleBackups() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.CONFIG);
         MinecraftForge.EVENT_BUS.register(new EventListener());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
