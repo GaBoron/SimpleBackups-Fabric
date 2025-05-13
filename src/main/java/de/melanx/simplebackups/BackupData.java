@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 public class BackupData extends SavedData {
 
     private long lastSaved;
+    private boolean paused;
     private boolean merging;
 
     private BackupData() {
@@ -26,6 +27,7 @@ public class BackupData extends SavedData {
 
     public BackupData load(@Nonnull CompoundTag nbt) {
         this.lastSaved = nbt.getLong("lastSaved");
+        this.paused = nbt.getBoolean("paused");
         this.merging = nbt.getBoolean("merging");
         return this;
     }
@@ -34,8 +36,18 @@ public class BackupData extends SavedData {
     @Override
     public CompoundTag save(@Nonnull CompoundTag nbt) {
         nbt.putLong("lastSaved", this.lastSaved);
+        nbt.putBoolean("paused", this.paused);
         nbt.putBoolean("merging", this.merging);
         return nbt;
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+        this.setDirty();
+    }
+
+    public boolean isPaused() {
+        return this.paused;
     }
 
     public long getLastSaved() {
@@ -43,7 +55,7 @@ public class BackupData extends SavedData {
     }
 
     public boolean isMerging() {
-        return merging;
+        return this.merging;
     }
 
     public void startMerging() {

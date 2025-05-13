@@ -1,6 +1,7 @@
 {
   "simplebackups.backup_started": "Backup gestartet...",
   "simplebackups.backup_finished": "Backup fertiggestellt in %s (%s | %s)",
+  "simplebackups.backups_paused": "Backups pausiert",
   "simplebackups.commands.only_modified": "Es werden nicht nur veränderte Dateien gesichert, prüfe deine Konfigurationsdatei",
   "simplebackups.commands.is_merging": "Ein Zusammenführungsvorgang ist bereits im Gange",
   "simplebackups.commands.finished": "Zusammenführen der Backups erfolgreich abgeschlossen"
