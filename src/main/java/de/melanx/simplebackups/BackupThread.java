@@ -152,7 +152,7 @@ public class BackupThread extends Thread {
         if (ConfigHandler.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
-                    if (player.hasPermissions(2)) {
+                    if (ServerConfig.messagesForEveryone() || player.hasPermissions(2)) {
                         player.sendMessage(BackupThread.component(player, message, parameters).withStyle(style), Util.NIL_UUID);
                     }
                 });
