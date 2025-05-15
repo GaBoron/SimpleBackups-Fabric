@@ -88,8 +88,8 @@ static def getBranchName() {
 
     if (branch.startsWith("issue/") || branch.startsWith("pr/") ||
             branch.startsWith("fix/") || branch.startsWith("feature/")) {
-        branch = branch.replace('/', '_');
+        return branch.replace('/', '_');
     }
 
-    return branch;
+    return null;
 }
