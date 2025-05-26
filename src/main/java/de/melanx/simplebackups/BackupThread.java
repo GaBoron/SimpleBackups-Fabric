@@ -235,20 +235,22 @@ public class BackupThread extends Thread {
 
                 @Nonnull
                 public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
-                    if (!file.endsWith("session.lock")) {
+                    if (file.endsWith("session.lock")) {
                         return FileVisitResult.CONTINUE;
                     }
 
                     if (ignoreSomething && this.shouldSkipFile(levelPath.relativize(file))) {
                         SimpleBackups.LOGGER.debug("Skipping file: {}", file);
-                        long lastModified = file.toFile().lastModified();
-                        if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
-                            String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
-                            ZipEntry zipentry = new ZipEntry(completePath);
-                            zipStream.putNextEntry(zipentry);
-                            com.google.common.io.Files.asByteSource(file.toFile()).copyTo(zipStream);
-                            zipStream.closeEntry();
-                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    long lastModified = file.toFile().lastModified();
+                    if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
+                        String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
+                        ZipEntry zipentry = new ZipEntry(completePath);
+                        zipStream.putNextEntry(zipentry);
+                        com.google.common.io.Files.asByteSource(file.toFile()).copyTo(zipStream);
+                        zipStream.closeEntry();
                     }
 
                     return FileVisitResult.CONTINUE;
