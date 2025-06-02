@@ -21,6 +21,7 @@ public class CommonConfig {
 
     private static ForgeConfigSpec.BooleanValue enabled;
     private static ForgeConfigSpec.BooleanValue onlyModified;
+    private static ForgeConfigSpec.BooleanValue saveAll;
     private static ForgeConfigSpec.IntValue fullBackupTimer;
     private static ForgeConfigSpec.IntValue backupsToKeep;
     private static ForgeConfigSpec.IntValue timer;
@@ -37,6 +38,8 @@ public class CommonConfig {
                 .define("enabled", true);
         onlyModified = builder.comment("Should only changed files be backed up? Useful for large worlds. Keep in mind that old backups are required for a complete backup. Alternatively, you could run the command to create a new complete backup.")
                 .define("onlyModified", false);
+        saveAll = builder.comment("Should a save-all be forced before backup?")
+                .define("saveAll", true);
         fullBackupTimer = builder.comment("How often should a full backup be created if only modified files should be saved? This creates a full backup when x minutes are over and the next backup needs to be done. Once a year is default.")
                 .defineInRange("fullBackupTimer", 525960, 1, 5259600);
         backupsToKeep = builder.comment("The max amount of backup files to keep.")
@@ -111,6 +114,10 @@ public class CommonConfig {
 
     public static boolean onlyModified() {
         return onlyModified.get();
+    }
+
+    public static boolean saveAll() {
+        return saveAll.get();
     }
 
     public static boolean sendMessages() {
