@@ -210,6 +210,12 @@ public class BackupThread extends Thread {
     // vanilla copy with modifications
     private long makeWorldBackup() throws IOException {
         this.storageSource.checkLock();
+        if (CommonConfig.saveAll()) {
+            this.server.executeBlocking(() -> {
+                this.server.saveEverything(true, false, true);
+            });
+        }
+
         String fileName = this.storageSource.levelId + "_" + LocalDateTime.now().format(FORMATTER);
         Path path = CommonConfig.getOutputPath(this.storageSource.levelId);
 
