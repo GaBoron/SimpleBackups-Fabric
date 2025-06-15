@@ -160,6 +160,8 @@ public class BackupThread extends Thread {
     }
 
     private void broadcast(String message, Style style, Object... parameters) {
+        //noinspection StringConcatenationArgumentToLogCall
+        SimpleBackups.LOGGER.info(String.format(ForgeI18n.getPattern(message), parameters));
         if (ConfigHandler.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
