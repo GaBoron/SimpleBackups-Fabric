@@ -21,9 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -253,9 +251,13 @@ public class BackupThread extends Thread {
                     if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
                         String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
                         ZipEntry zipentry = new ZipEntry(completePath);
-                        zipStream.putNextEntry(zipentry);
-                        com.google.common.io.Files.asByteSource(file.toFile()).copyTo(zipStream);
-                        zipStream.closeEntry();
+                        try (InputStream inputStream = Files.newInputStream(file)) {
+                            zipStream.putNextEntry(zipentry);
+                            inputStream.transferTo(zipStream);
+                            zipStream.closeEntry();
+                        } catch (NoSuchFileException | FileNotFoundException e) {
+                            SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
+                        }
                     }
 
                     return FileVisitResult.CONTINUE;
