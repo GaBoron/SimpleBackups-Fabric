@@ -179,6 +179,8 @@ public class BackupThread extends Thread {
     }
 
     private void broadcast(String message, Style style, Object... parameters) {
+        //noinspection UnstableApiUsage,StringConcatenationArgumentToLogCall
+        SimpleBackups.LOGGER.info(String.format(FMLTranslations.getPattern(message, () -> message), parameters));
         if (CommonConfig.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
