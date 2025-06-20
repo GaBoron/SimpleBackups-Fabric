@@ -4,7 +4,7 @@ plugins {
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'release'
-var baseVersion = '21.5'
+var baseVersion = '21.6'
 mod.configure {
     modid 'simplebackups'
     group 'de.melanx'
@@ -18,7 +18,7 @@ mod.configure {
         }
     }
 
-    neoforge "${baseVersion}.0-beta"
+    neoforge "${baseVersion}.8-beta"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'
