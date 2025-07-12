@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -45,6 +46,7 @@ public class BackupThread extends Thread {
             .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
             .toFormatter();
     public static final Logger LOGGER = LoggerFactory.getLogger(BackupThread.class);
+    public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024;
     private final MinecraftServer server;
     private final boolean quiet;
     private final long lastSaved;
@@ -229,6 +231,7 @@ public class BackupThread extends Thread {
         final ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)));
         zipStream.setLevel(CommonConfig.getCompressionLevel());
 
+        AtomicBoolean aborted = new AtomicBoolean(false);
         try {
             Path levelName = Paths.get(this.storageSource.levelId);
             Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.levelId).toRealPath();
@@ -237,6 +240,8 @@ public class BackupThread extends Thread {
             List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();
             String ignoredFilesRegex = CommonConfig.getIgnoredFilesRegex();
             boolean ignoreSomething = !ignoredPaths.isEmpty() || !ignoredFiles.isEmpty() || !ignoredFilesRegex.isEmpty();
+            FileStore fileStore = Files.getFileStore(outputFile);
+
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
 
                 @Nonnull
@@ -252,6 +257,12 @@ public class BackupThread extends Thread {
 
                     long lastModified = file.toFile().lastModified();
                     if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
+                        if (fileStore.getUsableSpace() - attrs.size() - BACKUP_BUFFER_SIZE < 0L) {
+                            BackupThread.this.broadcast("simplebackups.not_enough_space", Style.EMPTY.withColor(ChatFormatting.RED));
+                            aborted.set(true);
+                            throw new IOException("Not enough space on disk to create backup");
+                        }
+
                         String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
                         ZipEntry zipentry = new ZipEntry(completePath);
                         try (InputStream inputStream = Files.newInputStream(file)) {
@@ -284,6 +295,10 @@ public class BackupThread extends Thread {
             }
 
             throw e;
+        } finally {
+            if (aborted.get()) {
+                Files.deleteIfExists(outputFile);
+            }
         }
 
         zipStream.close();
