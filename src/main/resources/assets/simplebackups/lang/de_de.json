@@ -5,6 +5,7 @@
   "simplebackups.commands.only_modified": "Es werden nicht nur veränderte Dateien gesichert, prüfe deine Konfigurationsdatei",
   "simplebackups.commands.is_merging": "Ein Zusammenführungsvorgang ist bereits im Gange",
   "simplebackups.commands.finished": "Zusammenführen der Backups erfolgreich abgeschlossen",
+  "simplebackups.not_enough_space": "Nicht genug Speicherplatz auf dem Datenträger, um das Backup zu erstellen. Vorgang abgebrochen!",
 
   "simplebackups.configuration.noPlayerBackups": "Backups ohne Spieler",
   "simplebackups.configuration.messagesForEveryone": "Nachrichten für alle",
