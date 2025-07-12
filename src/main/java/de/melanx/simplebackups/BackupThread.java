@@ -269,12 +269,21 @@ public class BackupThread extends Thread {
                             zipStream.putNextEntry(zipentry);
                             inputStream.transferTo(zipStream);
                             zipStream.closeEntry();
-                        } catch (NoSuchFileException | FileNotFoundException e) {
-                            SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
                         }
                     }
 
                     return FileVisitResult.CONTINUE;
+                }
+
+                @Nonnull
+                @Override
+                public FileVisitResult visitFileFailed(@Nonnull Path file, @Nonnull IOException exc) throws IOException {
+                    if (exc instanceof NoSuchFileException || exc instanceof FileNotFoundException) {
+                        SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    return super.visitFileFailed(file, exc);
                 }
 
                 private boolean shouldSkipFile(Path relativePath) {
