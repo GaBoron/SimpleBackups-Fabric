@@ -269,6 +269,8 @@ public class BackupThread extends Thread {
                             zipStream.putNextEntry(zipentry);
                             inputStream.transferTo(zipStream);
                             zipStream.closeEntry();
+                        } catch (IOException e) {
+                            this.visitFileFailed(file, e);
                         }
                     }
 
