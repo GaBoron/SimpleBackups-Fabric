@@ -40,6 +40,7 @@ public class CommonConfig {
     private static ModConfigSpec.ConfigValue<String> ignoredFilesRegex;
 
     private static ModConfigSpec.BooleanValue mc2discord;
+    private static ModConfigSpec.BooleanValue onlyFavorites;
 
     public static void init(ModConfigSpec.Builder builder) {
         enabled = builder.comment("If set false, no backups are being made.")
@@ -97,6 +98,8 @@ public class CommonConfig {
         builder.push("mod_compat");
         mc2discord = builder.comment("Should backup notifications be sent to Discord by using mc2discord? (needs to be installed)")
                 .define("mc2discord", true);
+        onlyFavorites = builder.comment("Should only worlds be backed up that are marked as favorite by Cherished Worlds mod?")
+                .define("onlyFavorites", false);
         builder.pop();
     }
 
@@ -185,5 +188,9 @@ public class CommonConfig {
 
     public static boolean mc2discord() {
         return mc2discord.get();
+    }
+
+    public static boolean onlyFavorites() {
+        return onlyFavorites.get();
     }
 }

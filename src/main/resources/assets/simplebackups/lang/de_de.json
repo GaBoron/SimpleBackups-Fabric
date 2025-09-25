@@ -13,6 +13,7 @@
   "simplebackups.configuration.timer": "Timer",
   "simplebackups.configuration.backupsToKeep": "Zu behaltende Backups",
   "simplebackups.configuration.backupType": "Backup-Typ",
+  "simplebackups.configuration.saveAll": "save-all",
   "simplebackups.configuration.useTickCounter": "Tick-Zähler verwenden",
   "simplebackups.configuration.maxDiskSize": "Maximale Festplattengröße",
   "simplebackups.configuration.enabled": "Mod aktiviert",
@@ -26,5 +27,6 @@
   "simplebackups.configuration.ignored_files_regex": "Ignorier-RegEx",
   "simplebackups.configuration.mod_compat": "Mod-Kompatibilität",
   "simplebackups.configuration.mc2discord": "Mc2Discord",
+  "simplebackups.configuration.onlyFavorites": "Cherished Worlds",
   "simplebackups.configuration.commandsCheatsDisabled": "Befehle für Nicht-OPs"
 }

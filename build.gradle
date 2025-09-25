@@ -2,9 +2,25 @@ plugins {
     id 'org.moddingx.modgradle.meta' version '5.0.3'
 }
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'release'
 var baseVersion = '21.6'
+var cherishedWorldsVersion = 'Fik98aS8' // 13.0.1+1.21.8
+
 mod.configure {
     modid 'simplebackups'
     group 'de.melanx'
@@ -51,6 +67,7 @@ mod.configure {
             version '1.21.6'
             version '1.21.7'
             version '1.21.8'
+            optional 'cherished-worlds'
         }
         curseforge {
             projectId 583228
@@ -59,4 +76,8 @@ mod.configure {
             projectId 'fzSKSXVK'
         }
     }
+}
+
+dependencies {
+    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
 }

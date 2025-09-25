@@ -1,5 +1,6 @@
 package de.melanx.simplebackups;
 
+import de.melanx.simplebackups.compat.CherishedWorldsCompat;
 import de.melanx.simplebackups.compat.Mc2DiscordCompat;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
@@ -90,6 +91,10 @@ public class BackupThread extends Thread {
     public static boolean shouldRunBackup(MinecraftServer server) {
         BackupData backupData = BackupData.get(server);
         if (!CommonConfig.isEnabled() || backupData.isPaused()) {
+            return false;
+        }
+
+        if (CherishedWorldsCompat.isLoaded() && !CherishedWorldsCompat.isFavorite(server.storageSource.getLevelId())) {
             return false;
         }
 
