@@ -19,8 +19,24 @@ if (branchName) {
 
 project.version = mod.version
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        forRepositories(fg.repository)
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
 dependencies {
     implementation curse.mod(325235, 4886408)
+    implementation fg.deobf("maven.modrinth:cherished-worlds:Uwaq5LPL") // 6.1.7+1.20.1
 }
 
 
