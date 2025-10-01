@@ -1,5 +1,5 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.0.3'
+    id 'org.moddingx.modgradle.meta' version '5.0.4'
 }
 
 repositories {
@@ -18,7 +18,7 @@ repositories {
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'release'
-var baseVersion = '21.6'
+var baseVersion = '21.9'
 var cherishedWorldsVersion = 'Fik98aS8' // 13.0.1+1.21.8
 
 mod.configure {
@@ -34,7 +34,7 @@ mod.configure {
         }
     }
 
-    neoforge "${baseVersion}.8-beta"
+    neoforge "${baseVersion}.1-beta"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'
@@ -64,9 +64,7 @@ mod.configure {
     upload {
         all {
             type releaseType
-            version '1.21.6'
-            version '1.21.7'
-            version '1.21.8'
+            version '1.21.9'
             optional 'cherished-worlds'
         }
         curseforge {
@@ -79,5 +77,5 @@ mod.configure {
 }
 
 dependencies {
-    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
+    compileOnly "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
 }
