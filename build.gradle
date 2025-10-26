@@ -65,6 +65,7 @@ mod.configure {
         all {
             type releaseType
             version '1.21.9'
+            version '1.21.10'
             optional 'cherished-worlds'
         }
         curseforge {
