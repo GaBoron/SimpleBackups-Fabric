@@ -295,7 +295,8 @@ public class BackupThread extends Thread {
                         return FileVisitResult.CONTINUE;
                     }
 
-                    return super.visitFileFailed(file, exc);
+                    IOException detailedException = new IOException("Failed to backup file: " + file, exc);
+                    return super.visitFileFailed(file, detailedException);
                 }
 
                 private boolean shouldSkipFile(Path relativePath) {
