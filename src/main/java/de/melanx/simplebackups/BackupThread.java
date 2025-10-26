@@ -255,6 +255,11 @@ public class BackupThread extends Thread {
                         return FileVisitResult.CONTINUE;
                     }
 
+                    if (file.endsWith("biomancy.spatial.db")) {
+                        SimpleBackups.LOGGER.info("Skipping \"{}\" - see https://github.com/Elenterius/Biomancy/issues/175", levelPath.relativize(file));
+                        return FileVisitResult.CONTINUE;
+                    }
+
                     if (ignoreSomething && this.shouldSkipFile(levelPath.relativize(file))) {
                         SimpleBackups.LOGGER.debug("Skipping file: {}", file);
                         return FileVisitResult.CONTINUE;
