@@ -214,18 +214,25 @@ public class BackupThread extends Thread {
             Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
                 @Nonnull
                 public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
-                    if (!file.endsWith("session.lock")) {
-                        long lastModified = file.toFile().lastModified();
-                        if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
-                            String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
-                            ZipEntry zipentry = new ZipEntry(completePath);
-                            try (InputStream inputStream = Files.newInputStream(file)) {
-                                zipStream.putNextEntry(zipentry);
-                                inputStream.transferTo(zipStream);
-                                zipStream.closeEntry();
-                            } catch (NoSuchFileException | FileNotFoundException e) {
-                                SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
-                            }
+                    if (file.endsWith("session.lock")) {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    if (file.endsWith("biomancy.spatial.db")) {
+                        SimpleBackups.LOGGER.info("Skipping \"{}\" - see https://github.com/Elenterius/Biomancy/issues/175", levelPath.relativize(file));
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    long lastModified = file.toFile().lastModified();
+                    if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
+                        String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
+                        ZipEntry zipentry = new ZipEntry(completePath);
+                        try (InputStream inputStream = Files.newInputStream(file)) {
+                            zipStream.putNextEntry(zipentry);
+                            inputStream.transferTo(zipStream);
+                            zipStream.closeEntry();
+                        } catch (NoSuchFileException | FileNotFoundException e) {
+                            SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
                         }
                     }
 
