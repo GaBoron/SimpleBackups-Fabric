@@ -233,6 +233,8 @@ public class BackupThread extends Thread {
                             zipStream.closeEntry();
                         } catch (NoSuchFileException | FileNotFoundException e) {
                             SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
+                        } catch (IOException e) {
+                            throw new IOException("Failed to backup file: " + file, e);
                         }
                     }
 
