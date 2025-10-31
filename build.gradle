@@ -1,5 +1,5 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.0.3'
+    id 'org.moddingx.modgradle.meta' version '5.0.4'
 }
 
 repositories {
@@ -17,7 +17,7 @@ repositories {
 }
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
-var releaseType = 'release'
+var releaseType = 'beta'
 var baseVersion = '21.6'
 var cherishedWorldsVersion = 'Fik98aS8' // 13.0.1+1.21.8
 
