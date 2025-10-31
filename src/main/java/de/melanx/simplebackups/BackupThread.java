@@ -5,11 +5,13 @@ import de.melanx.simplebackups.compat.Mc2DiscordCompat;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
+import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.network.Pause;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.FileUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
@@ -32,7 +34,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -47,13 +49,14 @@ public class BackupThread extends Thread {
             .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
             .toFormatter();
     public static final Logger LOGGER = LoggerFactory.getLogger(BackupThread.class);
-    public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024;
+    public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024; // 128 MB
     private final MinecraftServer server;
     private final boolean quiet;
     private final long lastSaved;
     private final boolean fullBackup;
     private final LevelStorageSource.LevelStorageAccess storageSource;
     private final Path backupPath;
+    private final Set<Path> errors = new HashSet<>();
 
     private BackupThread(@Nonnull MinecraftServer server, boolean quiet, BackupData backupData) {
         this.server = server;
@@ -156,19 +159,62 @@ public class BackupThread extends Thread {
     @Override
     public void run() {
         try {
-            this.deleteFiles();
+            Path backupFilePath = this.getBackupFilePath();
 
-            Files.createDirectories(this.backupPath);
-            long start = System.currentTimeMillis();
-            this.broadcast("simplebackups.backup_started", Style.EMPTY.withColor(ChatFormatting.GOLD));
-            long size = this.makeWorldBackup();
-            long end = System.currentTimeMillis();
-            String time = Timer.getTimer(end - start);
-            this.saveStorageSize();
-            this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(ChatFormatting.GOLD), time, StorageSize.getFormattedSize(size), StorageSize.getFormattedSize(this.getOutputFolderSize()));
+            try {
+                this.deleteFiles();
+
+                Files.createDirectories(this.backupPath);
+                long start = System.currentTimeMillis();
+                this.broadcast("simplebackups.backup_started", Style.EMPTY.withColor(ChatFormatting.GOLD));
+                BackupResult backupResult = this.makeWorldBackup(backupFilePath);
+                long end = System.currentTimeMillis();
+                String time = Timer.getTimer(end - start);
+                this.saveStorageSize();
+
+                boolean hasErrors = !this.errors.isEmpty();
+
+                this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(hasErrors ? ChatFormatting.YELLOW : ChatFormatting.GOLD),
+                        time, StorageSize.getFormattedSize(backupResult.fileSize), StorageSize.getFormattedSize(this.getOutputFolderSize()));
+
+                if (hasErrors) {
+                    MutableComponent erroredFiles = Component.literal(this.errors.stream()
+                            .map(file -> "- " + file.toString())
+                            .collect(Collectors.joining("\n"))
+                    );
+
+                    this.broadcast("simplebackups.backup_errors", Style.EMPTY.withColor(ChatFormatting.RED)
+                            .withHoverEvent(new HoverEvent.ShowText(erroredFiles)), this.errors.size());
+                    BackupThread.LOGGER.error("Skipped {} files during backup because of errors:", this.errors.size());
+                    for (Path failedFile : this.errors) {
+                        BackupThread.LOGGER.error(" - {}", failedFile);
+                    }
+                }
+            } catch (NotEnoughDiskSpaceException e) {
+                BackupThread.this.broadcast("simplebackups.not_enough_space", Style.EMPTY.withColor(ChatFormatting.RED));
+                Files.deleteIfExists(backupFilePath);
+            } catch (IOException e) {
+                if (CommonConfig.deleteUnfinishedBackup()) {
+                    this.broadcast("simplebackups.backup_failed_delete", Style.EMPTY.withColor(ChatFormatting.RED));
+                    Files.deleteIfExists(backupFilePath);
+                } else {
+                    this.broadcast("simplebackups.backup_failed_continue", Style.EMPTY.withColor(ChatFormatting.RED));
+                }
+
+                SimpleBackups.LOGGER.error("Error backing up", e);
+            }
         } catch (IOException e) {
             SimpleBackups.LOGGER.error("Error backing up", e);
         }
+    }
+
+    private Path getBackupFilePath() throws IOException {
+        String fileName = this.storageSource.getLevelId() + "_" + LocalDateTime.now().format(FORMATTER);
+        Path path = CommonConfig.getOutputPath(this.storageSource.getLevelId());
+
+        Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
+
+        return path.resolve(FileUtil.findAvailableName(path, fileName, ".zip"));
     }
 
     private long getOutputFolderSize() throws IOException {
@@ -216,7 +262,7 @@ public class BackupThread extends Thread {
     }
 
     // vanilla copy with modifications
-    private long makeWorldBackup() throws IOException {
+    private BackupResult makeWorldBackup(Path outputFile) throws IOException {
         this.storageSource.checkLock();
         if (CommonConfig.saveAll()) {
             this.server.executeBlocking(() -> {
@@ -224,18 +270,6 @@ public class BackupThread extends Thread {
             });
         }
 
-        String fileName = this.storageSource.getLevelId() + "_" + LocalDateTime.now().format(FORMATTER);
-        Path path = CommonConfig.getOutputPath(this.storageSource.getLevelId());
-
-        try {
-            Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
-        } catch (IOException ioexception) {
-            throw new RuntimeException(ioexception);
-        }
-
-        Path outputFile = path.resolve(FileUtil.findAvailableName(path, fileName, ".zip"));
-
-        AtomicBoolean aborted = new AtomicBoolean(false);
         try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)))) {
             zipStream.setLevel(CommonConfig.getCompressionLevel());
             Path levelName = Paths.get(this.storageSource.getLevelId());
@@ -268,9 +302,7 @@ public class BackupThread extends Thread {
                     long lastModified = file.toFile().lastModified();
                     if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
                         if (fileStore.getUsableSpace() - attrs.size() - BACKUP_BUFFER_SIZE < 0L) {
-                            BackupThread.this.broadcast("simplebackups.not_enough_space", Style.EMPTY.withColor(ChatFormatting.RED));
-                            aborted.set(true);
-                            throw new IOException("Not enough space on disk to create backup");
+                            throw new NotEnoughDiskSpaceException("Not enough space on disk to create backup");
                         }
 
                         String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
@@ -295,6 +327,12 @@ public class BackupThread extends Thread {
                         return FileVisitResult.CONTINUE;
                     }
 
+                    if (CommonConfig.collectErrors()) {
+                        SimpleBackups.LOGGER.error("Failed to backup file: {}", file, exc);
+                        BackupThread.this.errors.add(levelPath.relativize(file));
+                        return FileVisitResult.CONTINUE;
+                    }
+
                     IOException detailedException = new IOException("Failed to backup file: " + file, exc);
                     return super.visitFileFailed(file, detailedException);
                 }
@@ -309,14 +347,12 @@ public class BackupThread extends Thread {
                     return path.toString().replace('\\', '/');
                 }
             });
-        } finally {
-            if (aborted.get()) {
-                Files.deleteIfExists(outputFile);
-            }
         }
 
-        return Files.size(outputFile);
+        return new BackupResult(outputFile, Files.size(outputFile));
     }
+
+    private record BackupResult(Path outputFile, long fileSize) {}
 
     private static class Timer {
 
