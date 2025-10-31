@@ -17,7 +17,7 @@ repositories {
 }
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
-var releaseType = 'release'
+var releaseType = 'beta'
 var baseVersion = '21.1'
 var modBaseVersion = '1.21-4.0'
 var cherishedWorldsVersion = 'o5lwJaRU' // 10.1.1+1.21.1
