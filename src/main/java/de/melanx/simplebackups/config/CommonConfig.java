@@ -35,6 +35,8 @@ public class CommonConfig {
     private static ForgeConfigSpec.BooleanValue noPlayerBackups;
     private static ForgeConfigSpec.BooleanValue createSubDirs;
     private static ForgeConfigSpec.BooleanValue useTickCounter;
+    private static ForgeConfigSpec.BooleanValue collectErrors;
+    private static ForgeConfigSpec.BooleanValue deleteUnfinishedBackup;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> ignoredPaths;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> ignoredFiles;
     private static ForgeConfigSpec.ConfigValue<String> ignoredFilesRegex;
@@ -76,6 +78,14 @@ public class CommonConfig {
         useTickCounter = builder.comment("Use an internal tick counter instead of the real world time. The value of the timer will be converted to ticks. When the timer is over, the backup will be created.",
                         "Keep in mind that lagging servers will result in larger gaps between two backups, e.g. 10 FPS in average will result in double the time set between backups.")
                 .define("useTickCounter", false);
+
+        builder.comment("WARNING This configuration should stay as default if backups are not monitored properly.")
+                .push("error_handling");
+        collectErrors = builder.comment("I/O Errors will be collected and print into the chat. The mod tries to complete the backup with as many files as possible. Otherwise, it will abort after the first error.")
+                .define("collectErrors", true);
+        deleteUnfinishedBackup = builder.comment("If collectErrors is 'false', backups with errors will be deleted immediately to prevent deleting valid backups.")
+                .define("deleteUnfinishedBackup", true);
+        builder.pop();
 
         builder.comment("WARNING Please check your configuration before using permanently.",
                         "The backup system will ignore these paths and files.")
@@ -163,6 +173,14 @@ public class CommonConfig {
 
     public static boolean sendMessages() {
         return sendMessages.get();
+    }
+
+    public static boolean collectErrors() {
+        return collectErrors.get();
+    }
+
+    public static boolean deleteUnfinishedBackup() {
+        return deleteUnfinishedBackup.get();
     }
 
     public static List<Path> getIgnoredPaths() {
