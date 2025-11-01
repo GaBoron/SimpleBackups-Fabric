@@ -112,13 +112,13 @@ public class CommonConfig {
     }
 
     // converts config value from milliseconds to minutes
-    public static int getTimer() {
-        return timer.get() * 60 * 1000;
+    public static long getTimer() {
+        return (long) timer.get() * 60 * 1000;
     }
 
     // converts config value from milliseconds to minutes
-    public static int getFullBackupTimer() {
-        return fullBackupTimer.get() * 60 * 1000;
+    public static long getFullBackupTimer() {
+        return (long) fullBackupTimer.get() * 60 * 1000;
     }
 
     public static int getCompressionLevel() {

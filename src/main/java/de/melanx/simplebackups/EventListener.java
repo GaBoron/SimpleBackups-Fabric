@@ -70,7 +70,7 @@ public class EventListener {
             backupData.setUsesTickCounter(usesTickCounter);
 
             long lastTimeSaved = backupData.getLastSaved();
-            int commonConfigTimer = CommonConfig.getTimer();
+            long commonConfigTimer = CommonConfig.getTimer();
 
             SimpleBackups.LOGGER.info("Initial lastTimeSaved: {}", lastTimeSaved);
             SimpleBackups.LOGGER.info("Config timer in minutes: {}", commonConfigTimer);
