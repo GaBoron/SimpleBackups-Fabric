@@ -105,7 +105,7 @@ public class BackupThread extends Thread {
             long gameTime = server.overworld().getGameTime();
             long lastSaved = backupData.getLastSaved();
             // convert timer from minutes into ticks
-            int timer = CommonConfig.getTimer() * 20 * 60;
+            long timer = CommonConfig.getTimer() * 20 * 60;
             return gameTime - lastSaved >= timer;
         }
 
