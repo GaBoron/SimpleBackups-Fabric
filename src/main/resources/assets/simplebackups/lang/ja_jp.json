@@ -4,5 +4,5 @@
   "simplebackups.backups_paused": "バックアップ一時停止",
   "simplebackups.commands.only_modified": "変更されたファイルだけがバックアップされるわけではありません。コンフィグファイルを確認してください。",
   "simplebackups.commands.is_merging": "マージ操作がすでに進行中です。",
-  "simplebackups.commands.finished": "バックアップのマージが正常に完了"
+  "simplebackups.commands.finished": "バックアップのマージが正常に完了 %s"
 }

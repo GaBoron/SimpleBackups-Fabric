@@ -4,6 +4,7 @@ import de.melanx.simplebackups.compat.CherishedWorldsCompat;
 import de.melanx.simplebackups.compat.Mc2DiscordCompat;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
+import de.melanx.simplebackups.config.ExperimentalConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.network.Pause;
@@ -35,6 +36,7 @@ import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -57,6 +59,8 @@ public class BackupThread extends Thread {
     private final LevelStorageSource.LevelStorageAccess storageSource;
     private final Path backupPath;
     private final Set<Path> errors = new HashSet<>();
+    private final BackupChainManager manager;
+    private boolean forceFullBackup = false;
 
     private BackupThread(@Nonnull MinecraftServer server, boolean quiet, BackupData backupData) {
         this.server = server;
@@ -66,12 +70,15 @@ public class BackupThread extends Thread {
             this.lastSaved = 0;
             this.fullBackup = true;
         } else {
+            long now = CommonConfig.useTickCounter() ? server.overworld().getGameTime() : System.currentTimeMillis();
             this.lastSaved = CommonConfig.backupType() == BackupType.MODIFIED_SINCE_LAST ? backupData.getLastSaved() : backupData.getLastFullBackup();
-            this.fullBackup = CommonConfig.backupType() == BackupType.FULL_BACKUPS || (CommonConfig.useTickCounter() ? server.overworld().getGameTime() : System.currentTimeMillis()) - CommonConfig.getFullBackupTimer() > backupData.getLastFullBackup();
+            this.fullBackup = CommonConfig.backupType() == BackupType.FULL_BACKUPS || (now - CommonConfig.getFullBackupTimer()) > backupData.getLastFullBackup();
         }
         this.setName("SimpleBackups");
         this.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        this.backupPath = CommonConfig.getOutputPath(this.storageSource.getLevelId());
+        String levelId = this.storageSource.getLevelId();
+        this.backupPath = CommonConfig.getOutputPath(levelId);
+        this.manager = ExperimentalConfig.isEnabled() ? BackupChainManager.get(levelId) : null;
     }
 
     public static boolean tryCreateBackup(MinecraftServer server) {
@@ -81,7 +88,7 @@ public class BackupThread extends Thread {
             thread.start();
             long currentTime = CommonConfig.useTickCounter() ? server.overworld().getGameTime() : System.currentTimeMillis();
             backupData.updateSaveTime(currentTime);
-            if (thread.fullBackup) {
+            if (thread.createFullBackup()) {
                 backupData.updateFullBackupTime(currentTime);
             }
 
@@ -118,6 +125,11 @@ public class BackupThread extends Thread {
     }
 
     public void deleteFiles() {
+        if (ExperimentalConfig.isEnabled()) {
+            this.deleteFilesExperimental();
+            return;
+        }
+
         File backups = this.backupPath.toFile();
         if (backups.isDirectory()) {
             List<File> files = new ArrayList<>(Arrays.stream(Objects.requireNonNull(backups.listFiles())).filter(File::isFile).toList());
@@ -137,6 +149,11 @@ public class BackupThread extends Thread {
 
     public void saveStorageSize() {
         try {
+            if (ExperimentalConfig.isEnabled()) {
+                this.saveStorageSizeExperimental();
+                return;
+            }
+
             while (this.getOutputFolderSize() > CommonConfig.getMaxDiskSize()) {
                 File[] files = this.backupPath.toFile().listFiles();
                 if (Objects.requireNonNull(files).length == 1) {
@@ -151,8 +168,35 @@ public class BackupThread extends Thread {
                     LOGGER.info("Successfully deleted \"{}\"", name);
                 }
             }
-        } catch (NullPointerException | IOException e) {
+        } catch (NullPointerException e) {
             LOGGER.error("Cannot delete old files to save disk space", e);
+        }
+    }
+
+    private void deleteFilesExperimental() {
+        if (this.manager.getChains().isEmpty()) {
+            return;
+        }
+
+        int maxChains = CommonConfig.getBackupsToKeep();
+        while (this.manager.getChains().size() > maxChains) {
+            BackupChain chain = this.manager.getFirstChain();
+            LOGGER.info("Deleting backup chain directory \"{}\"", chain.getParentFolder());
+            this.manager.removeChain(chain);
+        }
+    }
+
+    private void saveStorageSizeExperimental() {
+        while (this.manager.getFileSize() > CommonConfig.getMaxDiskSize()) {
+            List<BackupChain> chains = this.manager.getChains();
+            if (chains.size() <= 1) {
+                LOGGER.error("Cannot delete old chains to save disk space. Only one chain directory left!");
+                return;
+            }
+
+            BackupChain victim = chains.getFirst();
+            LOGGER.info("Deleting backup chain directory \"{}\" to save disk space", victim.getParentFolder());
+            this.manager.removeChain(victim);
         }
     }
 
@@ -209,26 +253,54 @@ public class BackupThread extends Thread {
     }
 
     private Path getBackupFilePath() throws IOException {
+        if (ExperimentalConfig.isEnabled()) {
+            return this.getChainBackupFilePath();
+        }
+
         String fileName = this.storageSource.getLevelId() + "_" + LocalDateTime.now().format(FORMATTER);
-        Path path = CommonConfig.getOutputPath(this.storageSource.getLevelId());
+        Path path = this.backupPath;
 
         Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
 
         return path.resolve(FileUtil.findAvailableName(path, fileName, ".zip"));
     }
 
-    private long getOutputFolderSize() throws IOException {
-        File[] files = this.backupPath.toFile().listFiles();
-        long size = 0;
-        try {
-            for (File file : Objects.requireNonNull(files)) {
-                size += Files.size(file.toPath());
-            }
-        } catch (NullPointerException e) {
+    private Path getChainBackupFilePath() throws IOException {
+        Path worldBackupDir = this.backupPath;
+        Files.createDirectories(Files.exists(worldBackupDir) ? worldBackupDir.toRealPath() : worldBackupDir);
+        String baseName = LocalDateTime.now().format(FORMATTER);
+        BackupChain latestChain = this.manager.getLatestChain();
+
+        if (this.fullBackup || latestChain == null) {
+            this.forceFullBackup = true;
+            BackupChain chain = this.manager.createChain(baseName);
+            return chain.getFullBackup();
+        }
+
+        return latestChain.createChild();
+    }
+
+    private long getOutputFolderSize() {
+        if (!Files.exists(this.backupPath)) {
             return 0;
         }
 
-        return size;
+        try (Stream<Path> stream = Files.walk(this.backupPath)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .mapToLong(path -> {
+                        try {
+                            return Files.size(path);
+                        } catch (IOException e) {
+                            LOGGER.warn("Failed to get size of {}", path, e);
+                            return 0L;
+                        }
+                    })
+                    .sum();
+        } catch (IOException e) {
+            LOGGER.warn("Failed to get size of backup folder", e);
+            return 0L;
+        }
     }
 
     private void broadcast(String message, Style style, Object... parameters) {
@@ -300,7 +372,7 @@ public class BackupThread extends Thread {
                     }
 
                     long lastModified = file.toFile().lastModified();
-                    if (BackupThread.this.fullBackup || lastModified - BackupThread.this.lastSaved > 0) {
+                    if (BackupThread.this.createFullBackup() || lastModified - BackupThread.this.lastSaved > 0) {
                         if (fileStore.getUsableSpace() - attrs.size() - BACKUP_BUFFER_SIZE < 0L) {
                             throw new NotEnoughDiskSpaceException("Not enough space on disk to create backup");
                         }
@@ -350,6 +422,10 @@ public class BackupThread extends Thread {
         }
 
         return new BackupResult(outputFile, Files.size(outputFile));
+    }
+
+    private boolean createFullBackup() {
+        return this.fullBackup || this.forceFullBackup;
     }
 
     private record BackupResult(Path outputFile, long fileSize) {}
