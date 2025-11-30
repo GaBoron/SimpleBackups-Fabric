@@ -4,5 +4,5 @@
   "simplebackups.backups_paused": "备份中止",
   "simplebackups.commands.only_modified": "不只备份了修改后的文件，请检查你的配置文件",
   "simplebackups.commands.is_merging": "已有一个合并操作正在执行",
-  "simplebackups.commands.finished": "合并备份成功"
+  "simplebackups.commands.finished": "合并备份成功 %s"
 }
