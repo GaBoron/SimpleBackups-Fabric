@@ -2,6 +2,7 @@ package de.melanx.simplebackups;
 
 import de.melanx.simplebackups.client.ClientInit;
 import de.melanx.simplebackups.config.CommonConfig;
+import de.melanx.simplebackups.config.ExperimentalConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.network.Pause;
 import net.neoforged.api.distmarker.Dist;
@@ -24,6 +25,7 @@ public class SimpleBackups {
 
     public SimpleBackups(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.CONFIG);
+        modContainer.registerConfig(ModConfig.Type.COMMON, ExperimentalConfig.CONFIG, "simplebackups-common-experimental.toml");
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.CONFIG);
         NeoForge.EVENT_BUS.register(new EventListener());
         modEventBus.addListener(this::setup);

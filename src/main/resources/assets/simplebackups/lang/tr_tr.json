@@ -4,5 +4,5 @@
   "simplebackups.backups_paused": "Yedeklemeler duraklatıldı",
   "simplebackups.commands.only_modified": "Yalnızca değiştirilen dosyalar yedeklenmiyor, lütfen yapılandırma dosyanızı kontrol edin",
   "simplebackups.commands.is_merging": "Bir birleştirme işlemi zaten devam ediyor",
-  "simplebackups.commands.finished": "Yedeklerin birleştirilmesi başarıyla tamamlandı"
+  "simplebackups.commands.finished": "Yedeklerin birleştirilmesi başarıyla tamamlandı %s"
 }
