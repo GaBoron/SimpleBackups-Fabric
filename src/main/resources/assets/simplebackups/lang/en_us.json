@@ -7,9 +7,11 @@
   "simplebackups.backups_paused": "Backups paused",
   "simplebackups.commands.only_modified": "Not only modified files are being backed up, please check your configuration file",
   "simplebackups.commands.is_merging": "A merge operation is already in progress",
-  "simplebackups.commands.finished": "Merging backups completed successfully",
+  "simplebackups.commands.finished": "Merging backups completed successfully at %s",
   "simplebackups.not_enough_space": "Not enough space on disk to create backup. Aborted!",
 
+  "simplebackups.configuration.section.simplebackups.common.experimental.toml": "Experimental settings",
+  "simplebackups.configuration.backupChainsToKeep": "Backup Chains to keep",
   "simplebackups.configuration.noPlayerBackups": "Backups without Players",
   "simplebackups.configuration.messagesForEveryone": "Messages for Everyone",
   "simplebackups.configuration.createSubDirs": "Create subdirectories",
