@@ -16,7 +16,6 @@ public class CommonConfig {
     public static final ModConfigSpec CONFIG;
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     private static final String DEFAULT_DISK_SIZE = "25 GB";
-    private static final String EXPERIMENTAL_NOTE = "Experimental setting available, look at 'simplebackups-common-experimental.toml' to help testing";
 
     static {
         init(BUILDER);
@@ -27,7 +26,7 @@ public class CommonConfig {
     private static ModConfigSpec.EnumValue<BackupType> backupType;
     private static ModConfigSpec.BooleanValue saveAll;
     private static ModConfigSpec.IntValue fullBackupTimer;
-    private static ModConfigSpec.IntValue backupsToKeep;
+    private static ModConfigSpec.IntValue backupChainsToKeep;
     private static ModConfigSpec.IntValue timer;
     private static ModConfigSpec.IntValue compressionLevel;
     private static ModConfigSpec.BooleanValue sendMessages;
@@ -48,18 +47,17 @@ public class CommonConfig {
     public static void init(ModConfigSpec.Builder builder) {
         enabled = builder.comment("If set false, no backups are being made.")
                 .define("enabled", true);
-        backupType = builder.comment(EXPERIMENTAL_NOTE,
-                        "Defines the backup type.",
-                        "- FULL_BACKUPS - always creates full backups",
-                        "- MODIFIED_SINCE_LAST - only saves the files which changed since last (partial) backup",
-                        "- MODIFIED_SINCE_FULL - saves all files which changed after the last full backup")
-                .defineEnum("backupType", BackupType.FULL_BACKUPS);
+        backupType = builder.comment("Defines the backup type.",
+                        "- FULL_BACKUPS - every backup is a full backup.",
+                        "- INCREMENTAL  - backup only files changed since the last backup",
+                        "- DIFFERENTIAL - backup only files changed since the last full backup")
+                .defineEnum("backupType", BackupType.INCREMENTAL);
         saveAll = builder.comment("Should a save-all be forced before backup?")
                 .define("saveAll", true);
         fullBackupTimer = builder.comment("How often should a full backup be created if only modified files should be saved? This creates a full backup when x minutes are over and the next backup needs to be done. Once a year is default.")
                 .defineInRange("fullBackupTimer", 525960, 1, 5259600);
-        backupsToKeep = builder.comment(EXPERIMENTAL_NOTE, "The max amount of backup files to keep.")
-                .defineInRange("backupsToKeep", 10, 1, Short.MAX_VALUE);
+        backupChainsToKeep = builder.comment("The max amount of backup chains to keep.")
+                .defineInRange("backupChainsToKeep", 10, 1, Short.MAX_VALUE);
         timer = builder.comment("The time between two backups in minutes", "5 = each 5 minutes", "60 = each hour", "1440 = each day")
                 .defineInRange("timer", 120, 1, Short.MAX_VALUE);
         compressionLevel = builder.comment("Compression level:",
@@ -123,7 +121,7 @@ public class CommonConfig {
     }
 
     public static int getBackupsToKeep() {
-        return ExperimentalConfig.isEnabled() ? ExperimentalConfig.backupChainsToKeep() : backupsToKeep.get();
+        return backupChainsToKeep.get();
     }
 
     // converts config value from milliseconds to minutes
@@ -164,7 +162,7 @@ public class CommonConfig {
     }
 
     public static BackupType backupType() {
-        return ExperimentalConfig.isEnabled() ? ExperimentalConfig.backupType().asLegacyType() : backupType.get();
+        return backupType.get();
     }
 
     public static boolean saveAll() {

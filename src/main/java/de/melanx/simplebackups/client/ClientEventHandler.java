@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -26,7 +26,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onRenderText(RegisterGuiLayersEvent event) {
-        event.registerBelow(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath("simplebackups", "pause"), this::renderText);
+        event.registerBelow(VanillaGuiLayers.HOTBAR, Identifier.fromNamespaceAndPath("simplebackups", "pause"), this::renderText);
     }
 
     private void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {

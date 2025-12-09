@@ -6,14 +6,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public record Pause(boolean pause) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SimpleBackups.MODID, "pause");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(SimpleBackups.MODID, "pause");
     public static final CustomPacketPayload.Type<Pause> TYPE = new Type<>(ID);
 
     public static final StreamCodec<FriendlyByteBuf, Pause> CODEC = StreamCodec.composite(

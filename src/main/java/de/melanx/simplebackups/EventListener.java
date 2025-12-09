@@ -10,6 +10,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -24,7 +25,7 @@ public class EventListener {
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal(SimpleBackups.MODID)
-                .requires(stack -> ServerConfig.commandsCheatsDisabled() || stack.hasPermission(2))
+                .requires(stack -> ServerConfig.commandsCheatsDisabled() || stack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(BackupCommand.register())
                 .then(PauseCommand.register())
                 .then(MergeCommand.register()));

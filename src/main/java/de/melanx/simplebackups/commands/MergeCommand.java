@@ -12,7 +12,6 @@ import de.melanx.simplebackups.BackupData;
 import de.melanx.simplebackups.SimpleBackups;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
-import de.melanx.simplebackups.config.ExperimentalConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -34,15 +33,13 @@ public class MergeCommand implements Command<CommandSourceStack> {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("mergeBackups")
-                .executes(new MergeCommand())
                 .then(Commands.argument("chain", StringArgumentType.string()).suggests((stack, builder) -> {
                             String levelId = stack.getSource().getServer().storageSource.getLevelId();
                             BackupChainManager manager = BackupChainManager.get(levelId);
 
                             return SharedSuggestionProvider.suggest(manager.getChains().stream().map(chain -> chain.getParentFolder().getFileName().toString()), builder);
                         })
-                        .executes(new MergeCommand())
-                        .requires(stack -> ExperimentalConfig.isEnabled()));
+                        .executes(new MergeCommand()));
     }
 
     @Override
@@ -59,49 +56,33 @@ public class MergeCommand implements Command<CommandSourceStack> {
             throw new SimpleCommandExceptionType(Component.translatable("simplebackups.commands.is_merging")).create();
         }
 
-        if (ExperimentalConfig.isEnabled()) {
-            try {
-                String chainName = commandContext.getArgument("chain", String.class);
-                BackupChainManager manager = BackupChainManager.get(commandContext.getSource().getServer().storageSource.getLevelId());
-                List<Path> zipFiles = new ArrayList<>();
-                for (BackupChain chain : manager.getChains()) {
-                    if (chain.getParentFolder().getFileName().toString().equals(chainName)) {
-                        ExperimentalConfig.ExperimentalBackupType backupType = chain.getBackupType();
-                        switch(backupType) {
-                            case FULL_BACKUPS ->
-                                    throw new SimpleCommandExceptionType(Component.translatable("simplebackups.commands.only_modified")).create();
-                            case INCREMENTAL -> {
-                                zipFiles.add(chain.getFullBackup());
-                                zipFiles.addAll(chain.getChildren());
-                            }
-                            case DIFFERENTIAL -> {
-                                zipFiles.add(chain.getFullBackup());
-                                zipFiles.add(chain.getChildren().getLast());
-                            }
-                        }
-
-                        MergingThread mergingThread = new MergingThread(zipFiles, commandContext);
-                        data.startMerging();
-                        mergingThread.start();
-                    }
-                }
-            } catch (IllegalArgumentException e) {
-                SimpleBackups.LOGGER.error("Invalid chain name: {}", commandContext.getArgument("chain", String.class), e);
-                data.stopMerging();
-                return 0;
-            }
-
-            data.stopMerging();
-            return 1;
-        }
-
         try {
-            List<Path> backupSources = Files.list(CommonConfig.getOutputPath(commandContext.getSource().getServer().storageSource.getLevelId())).toList();
-            MergingThread mergingThread = new MergingThread(backupSources, commandContext);
-            data.startMerging();
-            mergingThread.start();
-        } catch (Exception e) {
-            SimpleBackups.LOGGER.error("Failed to merge backups", e);
+            String chainName = commandContext.getArgument("chain", String.class);
+            BackupChainManager manager = BackupChainManager.get(commandContext.getSource().getServer().storageSource.getLevelId());
+            List<Path> zipFiles = new ArrayList<>();
+            for (BackupChain chain : manager.getChains()) {
+                if (chain.getParentFolder().getFileName().toString().equals(chainName)) {
+                    BackupType backupType = chain.getBackupType();
+                    switch(backupType) {
+                        case FULL_BACKUPS ->
+                                throw new SimpleCommandExceptionType(Component.translatable("simplebackups.commands.only_modified")).create();
+                        case INCREMENTAL -> {
+                            zipFiles.add(chain.getFullBackup());
+                            zipFiles.addAll(chain.getChildren());
+                        }
+                        case DIFFERENTIAL -> {
+                            zipFiles.add(chain.getFullBackup());
+                            zipFiles.add(chain.getChildren().getLast());
+                        }
+                    }
+
+                    MergingThread mergingThread = new MergingThread(zipFiles, commandContext);
+                    data.startMerging();
+                    mergingThread.start();
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            SimpleBackups.LOGGER.error("Invalid chain name: {}", commandContext.getArgument("chain", String.class), e);
             data.stopMerging();
             return 0;
         }

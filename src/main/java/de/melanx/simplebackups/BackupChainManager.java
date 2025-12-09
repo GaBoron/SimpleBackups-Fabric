@@ -1,7 +1,6 @@
 package de.melanx.simplebackups;
 
 import de.melanx.simplebackups.config.CommonConfig;
-import de.melanx.simplebackups.config.ExperimentalConfig;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class BackupChainManager {
     public BackupChain createChain(String baseName) {
         Path chainDir = CommonConfig.getOutputPath(this.levelId).resolve(baseName);
         Path backupFilePath = Paths.get("full.zip");
-        BackupChain backupChain = new BackupChain(chainDir, backupFilePath, ExperimentalConfig.backupType());
+        BackupChain backupChain = new BackupChain(chainDir, backupFilePath, CommonConfig.backupType());
 
         this.addChain(backupChain);
         return backupChain;

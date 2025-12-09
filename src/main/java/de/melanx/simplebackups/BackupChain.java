@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import de.melanx.simplebackups.config.ExperimentalConfig;
+import de.melanx.simplebackups.config.BackupType;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -20,18 +20,18 @@ public class BackupChain {
     private final Path parentFolder;
     private final Path fullBackup;
     private final List<Path> children;
-    private final ExperimentalConfig.ExperimentalBackupType experimentalBackupType;
+    private final BackupType backupType;
     private long lastUpdated;
 
-    public BackupChain(Path parentFolder, Path fullBackup, ExperimentalConfig.ExperimentalBackupType experimentalBackupType) {
-        this(parentFolder, fullBackup, new ArrayList<>(), experimentalBackupType, System.currentTimeMillis());
+    public BackupChain(Path parentFolder, Path fullBackup, BackupType backupType) {
+        this(parentFolder, fullBackup, new ArrayList<>(), backupType, System.currentTimeMillis());
     }
 
-    public BackupChain(Path parentFolder, Path fullBackup, List<Path> children, ExperimentalConfig.ExperimentalBackupType experimentalBackupType, long lastUpdated) {
+    public BackupChain(Path parentFolder, Path fullBackup, List<Path> children, BackupType backupType, long lastUpdated) {
         this.parentFolder = parentFolder;
         this.fullBackup = fullBackup;
         this.children = children;
-        this.experimentalBackupType = experimentalBackupType;
+        this.backupType = backupType;
         this.lastUpdated = lastUpdated;
     }
 
@@ -47,8 +47,8 @@ public class BackupChain {
         return this.children.stream().map(this.parentFolder::resolve).toList();
     }
 
-    public ExperimentalConfig.ExperimentalBackupType getBackupType() {
-        return this.experimentalBackupType;
+    public BackupType getBackupType() {
+        return this.backupType;
     }
 
     public void addChild(Path child) {
@@ -138,7 +138,7 @@ public class BackupChain {
             for (JsonElement child : json.getAsJsonArray("children")) {
                 children.add(Path.of(child.getAsString()));
             }
-            ExperimentalConfig.ExperimentalBackupType backupType = ExperimentalConfig.ExperimentalBackupType.valueOf(json.get("backupType").getAsString());
+            BackupType backupType = BackupType.valueOf(json.get("backupType").getAsString());
             long lastUpdated = json.get("lastUpdated").getAsLong();
 
             return new BackupChain(chainDir, fullBackup, children, backupType, lastUpdated);

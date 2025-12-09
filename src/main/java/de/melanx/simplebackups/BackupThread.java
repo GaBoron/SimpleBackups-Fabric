@@ -4,19 +4,18 @@ import de.melanx.simplebackups.compat.CherishedWorldsCompat;
 import de.melanx.simplebackups.compat.Mc2DiscordCompat;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
-import de.melanx.simplebackups.config.ExperimentalConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.network.Pause;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
-import net.minecraft.FileUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.neoforged.fml.i18n.FMLTranslations;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
@@ -25,7 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -34,7 +36,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -71,14 +76,14 @@ public class BackupThread extends Thread {
             this.fullBackup = true;
         } else {
             long now = CommonConfig.useTickCounter() ? server.overworld().getGameTime() : System.currentTimeMillis();
-            this.lastSaved = CommonConfig.backupType() == BackupType.MODIFIED_SINCE_LAST ? backupData.getLastSaved() : backupData.getLastFullBackup();
+            this.lastSaved = CommonConfig.backupType() == BackupType.INCREMENTAL ? backupData.getLastSaved() : backupData.getLastFullBackup();
             this.fullBackup = CommonConfig.backupType() == BackupType.FULL_BACKUPS || (now - CommonConfig.getFullBackupTimer()) > backupData.getLastFullBackup();
         }
         this.setName("SimpleBackups");
         this.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         String levelId = this.storageSource.getLevelId();
         this.backupPath = CommonConfig.getOutputPath(levelId);
-        this.manager = ExperimentalConfig.isEnabled() ? BackupChainManager.get(levelId) : null;
+        this.manager = BackupChainManager.get(levelId);
     }
 
     public static boolean tryCreateBackup(MinecraftServer server) {
@@ -125,55 +130,6 @@ public class BackupThread extends Thread {
     }
 
     public void deleteFiles() {
-        if (ExperimentalConfig.isEnabled()) {
-            this.deleteFilesExperimental();
-            return;
-        }
-
-        File backups = this.backupPath.toFile();
-        if (backups.isDirectory()) {
-            List<File> files = new ArrayList<>(Arrays.stream(Objects.requireNonNull(backups.listFiles())).filter(File::isFile).toList());
-            if (files.size() >= CommonConfig.getBackupsToKeep()) {
-                files.sort(Comparator.comparingLong(File::lastModified));
-                while (files.size() >= CommonConfig.getBackupsToKeep()) {
-                    boolean deleted = files.getFirst().delete();
-                    String name = files.getFirst().getName();
-                    if (deleted) {
-                        files.removeFirst();
-                        LOGGER.info("Successfully deleted \"{}\"", name);
-                    }
-                }
-            }
-        }
-    }
-
-    public void saveStorageSize() {
-        try {
-            if (ExperimentalConfig.isEnabled()) {
-                this.saveStorageSizeExperimental();
-                return;
-            }
-
-            while (this.getOutputFolderSize() > CommonConfig.getMaxDiskSize()) {
-                File[] files = this.backupPath.toFile().listFiles();
-                if (Objects.requireNonNull(files).length == 1) {
-                    LOGGER.error("Cannot delete old files to save disk space. Only one backup file left!");
-                    return;
-                }
-
-                Arrays.sort(Objects.requireNonNull(files), Comparator.comparingLong(File::lastModified));
-                File file = files[0];
-                String name = file.getName();
-                if (file.delete()) {
-                    LOGGER.info("Successfully deleted \"{}\"", name);
-                }
-            }
-        } catch (NullPointerException e) {
-            LOGGER.error("Cannot delete old files to save disk space", e);
-        }
-    }
-
-    private void deleteFilesExperimental() {
         if (this.manager.getChains().isEmpty()) {
             return;
         }
@@ -186,24 +142,28 @@ public class BackupThread extends Thread {
         }
     }
 
-    private void saveStorageSizeExperimental() {
-        while (this.manager.getFileSize() > CommonConfig.getMaxDiskSize()) {
-            List<BackupChain> chains = this.manager.getChains();
-            if (chains.size() <= 1) {
-                LOGGER.error("Cannot delete old chains to save disk space. Only one chain directory left!");
-                return;
-            }
+    public void saveStorageSize() {
+        try {
+            while (this.manager.getFileSize() > CommonConfig.getMaxDiskSize()) {
+                List<BackupChain> chains = this.manager.getChains();
+                if (chains.size() <= 1) {
+                    LOGGER.error("Cannot delete old chains to save disk space. Only one chain directory left!");
+                    return;
+                }
 
-            BackupChain victim = chains.getFirst();
-            LOGGER.info("Deleting backup chain directory \"{}\" to save disk space", victim.getParentFolder());
-            this.manager.removeChain(victim);
+                BackupChain victim = chains.getFirst();
+                LOGGER.info("Deleting backup chain directory \"{}\" to save disk space", victim.getParentFolder());
+                this.manager.removeChain(victim);
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("Cannot delete old files to save disk space", e);
         }
     }
 
     @Override
     public void run() {
         try {
-            Path backupFilePath = this.getBackupFilePath();
+            Path backupFilePath = this.getChainBackupFilePath();
 
             try {
                 this.deleteFiles();
@@ -252,19 +212,6 @@ public class BackupThread extends Thread {
         }
     }
 
-    private Path getBackupFilePath() throws IOException {
-        if (ExperimentalConfig.isEnabled()) {
-            return this.getChainBackupFilePath();
-        }
-
-        String fileName = this.storageSource.getLevelId() + "_" + LocalDateTime.now().format(FORMATTER);
-        Path path = this.backupPath;
-
-        Files.createDirectories(Files.exists(path) ? path.toRealPath() : path);
-
-        return path.resolve(FileUtil.findAvailableName(path, fileName, ".zip"));
-    }
-
     private Path getChainBackupFilePath() throws IOException {
         Path worldBackupDir = this.backupPath;
         Files.createDirectories(Files.exists(worldBackupDir) ? worldBackupDir.toRealPath() : worldBackupDir);
@@ -309,7 +256,7 @@ public class BackupThread extends Thread {
         if (CommonConfig.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
-                    if (ServerConfig.messagesForEveryone() || player.hasPermissions(2)) {
+                    if (ServerConfig.messagesForEveryone() || player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                         player.sendSystemMessage(BackupThread.component(player, message, parameters).withStyle(style));
                     }
                 });
