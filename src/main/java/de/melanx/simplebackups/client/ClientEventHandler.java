@@ -3,7 +3,7 @@ package de.melanx.simplebackups.client;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
@@ -29,12 +29,12 @@ public class ClientEventHandler {
         event.registerBelow(VanillaGuiLayers.HOTBAR, Identifier.fromNamespaceAndPath("simplebackups", "pause"), this::renderText);
     }
 
-    private void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    private void renderText(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!isPaused) {
             return;
         }
 
         guiGraphics.fill(3, 3, 20, 20, 0);
-        guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, -1, true);
+        guiGraphics.text(Minecraft.getInstance().font, COMPONENT, 3, 3, -1, true);
     }
 }

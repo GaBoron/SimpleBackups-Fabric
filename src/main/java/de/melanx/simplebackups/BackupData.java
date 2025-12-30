@@ -3,6 +3,7 @@ package de.melanx.simplebackups;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.melanx.simplebackups.config.CommonConfig;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -28,7 +29,7 @@ public class BackupData extends SavedData {
             .apply(instance, BackupData::new));
 
     public static SavedDataType<BackupData> type() {
-        return new SavedDataType<>("simplebackups", context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0), context -> CODEC);
+        return new SavedDataType<>(Identifier.fromNamespaceAndPath("simplebackups", "data"), context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0), context -> CODEC);
     }
 
     private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter, int backupsSinceLastPlayerJoined) {

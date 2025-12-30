@@ -18,7 +18,7 @@ repositories {
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'beta'
-var baseVersion = '21.11'
+var baseVersion = '26.1'
 var cherishedWorldsVersion = 'Fik98aS8' // 13.0.1+1.21.8
 
 mod.configure {
@@ -34,7 +34,7 @@ mod.configure {
         }
     }
 
-    neoforge "${baseVersion}.0-beta"
+    neoforge "${baseVersion}.0.0-alpha.15+pre-3"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'
@@ -64,7 +64,7 @@ mod.configure {
     upload {
         all {
             type releaseType
-            version '1.21.11'
+            version '26.1'
             optional 'cherished-worlds'
         }
         curseforge {
