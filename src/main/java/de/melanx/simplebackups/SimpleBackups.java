@@ -31,6 +31,12 @@ public class SimpleBackups {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onRegisterPayloadHandler);
 
+        if (CommonConfig.backupsDisabledByJvmArg()) {
+            LOGGER.info("##########################################");
+            LOGGER.info("#  Backups are disabled by JVM argument  #");
+            LOGGER.info("##########################################");
+        }
+
         if (dist.isClient()) {
             ClientInit.init(modEventBus, modContainer);
         }
