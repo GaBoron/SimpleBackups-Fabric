@@ -28,6 +28,12 @@ public class SimpleBackups {
         MinecraftForge.EVENT_BUS.register(new EventListener());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 
+        if (CommonConfig.backupsDisabledByJvmArg()) {
+            LOGGER.info("##########################################");
+            LOGGER.info("#  Backups are disabled by JVM argument  #");
+            LOGGER.info("##########################################");
+        }
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.register(new ClientEventHandler()));
     }
 

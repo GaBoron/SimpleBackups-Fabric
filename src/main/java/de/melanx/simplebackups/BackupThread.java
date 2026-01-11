@@ -93,7 +93,7 @@ public class BackupThread extends Thread {
 
     public static boolean shouldRunBackup(MinecraftServer server) {
         BackupData backupData = BackupData.get(server);
-        if (!CommonConfig.isEnabled() || backupData.isPaused()) {
+        if (!CommonConfig.isEnabled() || CommonConfig.backupsDisabledByJvmArg() || backupData.isPaused()) {
             return false;
         }
 

@@ -28,6 +28,10 @@ public class EventListener {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.LevelTickEvent event) {
+        if (!CommonConfig.backupsDisabledByJvmArg()) {
+            return;
+        }
+
         //noinspection ConstantConditions
         if (event.phase == TickEvent.Phase.END && !event.level.isClientSide
                 && event.level.getGameTime() % 20 == 0 && event.level == event.level.getServer().overworld()) {
@@ -46,7 +50,7 @@ public class EventListener {
 
     @SubscribeEvent
     public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
-        if (CommonConfig.isEnabled() && event.getEntity().getServer() != null) {
+        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && event.getEntity().getServer() != null) {
             SimpleBackups.network().pause(event.getEntity(), BackupData.get(event.getEntity().getServer()).isPaused());
         }
     }
