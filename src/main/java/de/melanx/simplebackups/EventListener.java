@@ -33,6 +33,10 @@ public class EventListener {
 
     @SubscribeEvent
     public void onServerTick(LevelTickEvent.Post event) {
+        if (!CommonConfig.backupsDisabledByJvmArg()) {
+            return;
+        }
+
         if (event.getLevel() instanceof ServerLevel level && !level.isClientSide()
                 && level.getGameTime() % 20 == 0 && level == level.getServer().overworld()) {
             EventListener.checkForTickCounterConfigUpdate(event.getLevel().getServer());
@@ -52,7 +56,7 @@ public class EventListener {
     public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
         ServerPlayer player = (ServerPlayer) event.getEntity();
         //noinspection UnstableApiUsage
-        if (CommonConfig.isEnabled() && NetworkRegistry.hasChannel(player.connection.connection, null, Pause.ID)) {
+        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && NetworkRegistry.hasChannel(player.connection.connection, null, Pause.ID)) {
             PacketDistributor.sendToPlayer(player, new Pause(BackupData.get(player.level().getServer()).isPaused()));
         }
     }

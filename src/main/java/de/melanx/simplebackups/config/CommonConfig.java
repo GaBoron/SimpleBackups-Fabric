@@ -9,9 +9,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.Deflater;
 
 public class CommonConfig {
+
+    private static final String JVM_PROP_DISABLE_BACKUPS = "simplebackups.disableBackups";
 
     public static final ModConfigSpec CONFIG;
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -120,6 +123,10 @@ public class CommonConfig {
         return enabled.get();
     }
 
+    public static boolean backupsDisabledByJvmArg() {
+        return CommonConfig.parseBoolean(System.getProperty(JVM_PROP_DISABLE_BACKUPS), false);
+    }
+
     public static int getBackupsToKeep() {
         return backupChainsToKeep.get();
     }
@@ -213,5 +220,17 @@ public class CommonConfig {
 
     public static boolean onlyFavorites() {
         return onlyFavorites.get();
+    }
+
+    private static boolean parseBoolean(@Nullable String value, boolean defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+
+        return switch(value.trim().toLowerCase(Locale.ROOT)) {
+            case "true", "1", "yes", "y", "on" -> true;
+            case "false", "0", "no", "n", "off" -> false;
+            default -> defaultValue;
+        };
     }
 }
