@@ -33,7 +33,7 @@ public class EventListener {
 
     @SubscribeEvent
     public void onServerTick(LevelTickEvent.Post event) {
-        if (!CommonConfig.backupsDisabledByJvmArg()) {
+        if (CommonConfig.backupsDisabledByJvmArg()) {
             return;
         }
 
