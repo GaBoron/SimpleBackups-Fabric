@@ -40,12 +40,17 @@ public class EventListener {
                 && level.getGameTime() % 20 == 0 && level == level.getServer().overworld()) {
             EventListener.checkForTickCounterConfigUpdate(event.getLevel().getServer());
 
-            if (!level.getServer().getPlayerList().getPlayers().isEmpty() || this.doBackup || CommonConfig.doNoPlayerBackups()) {
-                this.doBackup = false;
+            boolean arePlayersOnline = !level.getServer().getPlayerList().getPlayers().isEmpty();
+            if (arePlayersOnline || this.doBackup || CommonConfig.doNoPlayerBackups()) {
+                BackupData backupData = BackupData.get(level);
+                this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || backupData.backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
 
                 boolean done = BackupThread.tryCreateBackup(level.getServer());
                 if (done) {
                     SimpleBackups.LOGGER.info("Backup done.");
+                    if (!arePlayersOnline) {
+                        backupData.incrementBackupsSinceLastPlayerJoined();
+                    }
                 }
             }
         }
@@ -54,6 +59,7 @@ public class EventListener {
     @SubscribeEvent
     public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
         ServerPlayer player = (ServerPlayer) event.getEntity();
+        BackupData.get(player.level()).resetBackupsSinceLastPlayerJoined();
         //noinspection UnstableApiUsage
         if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && NetworkRegistry.hasChannel(player.connection.connection, null, Pause.ID)) {
             PacketDistributor.sendToPlayer(player, new Pause(BackupData.get(player.level().getServer()).isPaused()));
@@ -65,7 +71,7 @@ public class EventListener {
         if (event.getEntity() instanceof ServerPlayer player) {
             //noinspection ConstantConditions
             if (player.level().getServer().getPlayerList().getPlayers().isEmpty()) {
-                this.doBackup = true;
+                this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || BackupData.get(player.level()).backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
             }
         }
     }
@@ -79,7 +85,7 @@ public class EventListener {
             backupData.setUsesTickCounter(usesTickCounter);
 
             long lastTimeSaved = backupData.getLastSaved();
-            long commonConfigTimer = CommonConfig.getTimer();
+            long commonConfigTimer = CommonConfig.getTimer(true);
 
             SimpleBackups.LOGGER.info("Initial lastTimeSaved: {}", lastTimeSaved);
             SimpleBackups.LOGGER.info("Config timer in minutes: {}", commonConfigTimer);
