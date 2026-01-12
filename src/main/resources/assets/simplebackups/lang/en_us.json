@@ -11,6 +11,8 @@
   "simplebackups.not_enough_space": "Not enough space on disk to create backup. Aborted!",
 
   "simplebackups.configuration.noPlayerBackups": "Backups without Players",
+  "simplebackups.configuration.noPlayerBackupCount": "No Player Backup Count",
+  "simplebackups.configuration.noPlayerBackupTimer": "No Player Backup Timer",
   "simplebackups.configuration.messagesForEveryone": "Messages for Everyone",
   "simplebackups.configuration.createSubDirs": "Create subdirectories",
   "simplebackups.configuration.timer": "Timer",

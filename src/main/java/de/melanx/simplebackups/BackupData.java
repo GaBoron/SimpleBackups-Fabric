@@ -15,26 +15,29 @@ public class BackupData extends SavedData {
     private boolean paused;
     private boolean merging;
     private boolean usesTickCounter;
+    private int backupsSinceLastPlayerJoined;
 
     public static final Codec<BackupData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.LONG.fieldOf("lastSaved").forGetter(BackupData::getLastSaved),
                     Codec.LONG.fieldOf("lastFullBackup").forGetter(BackupData::getLastFullBackup),
                     Codec.BOOL.fieldOf("paused").forGetter(BackupData::isPaused),
                     Codec.BOOL.fieldOf("merging").forGetter(BackupData::isMerging),
-                    Codec.BOOL.fieldOf("usesTickCounter").forGetter(BackupData::usesTickCounter)
+                    Codec.BOOL.fieldOf("usesTickCounter").forGetter(BackupData::usesTickCounter),
+                    Codec.INT.fieldOf("backupsSinceLastPlayerJoined").forGetter(BackupData::backupsSinceLastPlayerJoined)
             )
             .apply(instance, BackupData::new));
 
     public static SavedDataType<BackupData> type() {
-        return new SavedDataType<>("simplebackups", context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter()), context -> CODEC);
+        return new SavedDataType<>("simplebackups", context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0), context -> CODEC);
     }
 
-    private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter) {
+    private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter, int backupsSinceLastPlayerJoined) {
         this.lastSaved = lastSaved;
         this.lastFullBackup = lastFullBackup;
         this.paused = paused;
         this.merging = merging;
         this.usesTickCounter = usesTickCounter;
+        this.backupsSinceLastPlayerJoined = backupsSinceLastPlayerJoined;
     }
 
     public static BackupData get(ServerLevel level) {
@@ -69,6 +72,24 @@ public class BackupData extends SavedData {
 
     public void updateFullBackupTime(long time) {
         this.lastFullBackup = time;
+        this.setDirty();
+    }
+
+    public int backupsSinceLastPlayerJoined() {
+        return this.backupsSinceLastPlayerJoined;
+    }
+
+    public void incrementBackupsSinceLastPlayerJoined() {
+        this.backupsSinceLastPlayerJoined++;
+        this.setDirty();
+    }
+
+    public void resetBackupsSinceLastPlayerJoined() {
+        if (this.backupsSinceLastPlayerJoined == 0) {
+            return;
+        }
+
+        this.backupsSinceLastPlayerJoined = 0;
         this.setDirty();
     }
 

@@ -11,6 +11,8 @@
   "simplebackups.not_enough_space": "Nicht genug Speicherplatz auf dem Datenträger, um das Backup zu erstellen. Vorgang abgebrochen!",
 
   "simplebackups.configuration.noPlayerBackups": "Backups ohne Spieler",
+  "simplebackups.configuration.noPlayerBackupCount": "Backupanzahl ohne Spieler",
+  "simplebackups.configuration.noPlayerBackupTimer": "Backup-Timer ohne Spieler",
   "simplebackups.configuration.messagesForEveryone": "Nachrichten für alle",
   "simplebackups.configuration.createSubDirs": "Unterverzeichnisse erstellen",
   "simplebackups.configuration.timer": "Timer",
