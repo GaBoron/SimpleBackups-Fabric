@@ -54,7 +54,7 @@ public class CommonConfig {
         backupType = builder.comment(EXPERIMENTAL_NOTE,
                         "Defines the backup type.",
                         "- FULL_BACKUPS - always creates full backups",
-                        "- MODIFIED_SINCE_LAST - only saves the files which changed since last (partial) backup",
+                        "- MODIFIED_SINCE_LAST - only saves the files which changed since last (partial) backup !!! You need to adjust fullBackupTimer properly, otherwise you may lose a lot of your backup (or use the experimental setting) !!!",
                         "- MODIFIED_SINCE_FULL - saves all files which changed after the last full backup")
                 .defineEnum("backupType", BackupType.FULL_BACKUPS);
         saveAll = builder.comment("Should a save-all be forced before backup?")
