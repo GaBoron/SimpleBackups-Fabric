@@ -28,7 +28,7 @@ public class EventListener {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.LevelTickEvent event) {
-        if (!CommonConfig.backupsDisabledByJvmArg()) {
+        if (CommonConfig.backupsDisabledByJvmArg()) {
             return;
         }
 
