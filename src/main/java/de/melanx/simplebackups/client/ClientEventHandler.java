@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 public class ClientEventHandler {
 
@@ -23,7 +23,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
+    public void onRenderText(RenderGuiEvent.Post event) {
         if (!isPaused) {
             return;
         }
