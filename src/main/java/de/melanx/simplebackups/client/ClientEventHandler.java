@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 public class ClientEventHandler {
 
-    private static final MutableComponent COMPONENT = Component.translatable("simplebackups.backups_paused").withStyle(ChatFormatting.RED);
+    private static final MutableComponent COMPONENT = Component.translatable("simplebackups.backups_paused").withStyle(ChatFormatting.DARK_RED);
     private static boolean isPaused = false;
 
     public static void setPaused(boolean paused) {
@@ -35,6 +35,6 @@ public class ClientEventHandler {
         }
 
         guiGraphics.fill(3, 3, 20, 20, 0);
-        guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, 0);
+        guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, -1, true);
     }
 }
