@@ -21,6 +21,7 @@
   "simplebackups.configuration.backupsToKeep": "Zu behaltende Backups",
   "simplebackups.configuration.backupType": "Backup-Typ",
   "simplebackups.configuration.saveAll": "save-all",
+  "simplebackups.configuration.captureLatestLog": "Log während Backup einfangen",
   "simplebackups.configuration.useTickCounter": "Tick-Zähler verwenden",
   "simplebackups.configuration.maxDiskSize": "Maximale Festplattengröße",
   "simplebackups.configuration.enabled": "Mod aktiviert",
