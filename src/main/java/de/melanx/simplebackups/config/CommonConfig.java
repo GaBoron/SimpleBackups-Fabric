@@ -28,6 +28,7 @@ public class CommonConfig {
     private static ModConfigSpec.BooleanValue enabled;
     private static ModConfigSpec.EnumValue<BackupType> backupType;
     private static ModConfigSpec.BooleanValue saveAll;
+    private static ModConfigSpec.BooleanValue captureLatestLog;
     private static ModConfigSpec.IntValue fullBackupTimer;
     private static ModConfigSpec.IntValue backupChainsToKeep;
     private static ModConfigSpec.IntValue timer;
@@ -59,6 +60,8 @@ public class CommonConfig {
                 .defineEnum("backupType", BackupType.INCREMENTAL);
         saveAll = builder.comment("Should a save-all be forced before backup?")
                 .define("saveAll", true);
+        captureLatestLog = builder.comment("Should log lines written to logs/latest.log during backup be stored inside the backup archive as latest.log?")
+                .define("captureLatestLog", true);
         fullBackupTimer = builder.comment("How often should a full backup be created if only modified files should be saved? This creates a full backup when x minutes are over and the next backup needs to be done. Once a year is default.")
                 .defineInRange("fullBackupTimer", 525960, 1, 5259600);
         backupChainsToKeep = builder.comment("The max amount of backup chains to keep.")
@@ -194,6 +197,10 @@ public class CommonConfig {
 
     public static boolean saveAll() {
         return saveAll.get();
+    }
+
+    public static boolean captureLatestLog() {
+        return captureLatestLog.get();
     }
 
     public static boolean sendMessages() {

@@ -19,6 +19,7 @@
   "simplebackups.configuration.backupChainsToKeep": "Backup Chains to keep",
   "simplebackups.configuration.backupType": "Backup Type",
   "simplebackups.configuration.saveAll": "save-all",
+  "simplebackups.configuration.captureLatestLog": "Capture log during backup",
   "simplebackups.configuration.useTickCounter": "Use tick counter",
   "simplebackups.configuration.maxDiskSize": "Max Disk Size",
   "simplebackups.configuration.enabled": "Mod Enabled",
