@@ -28,7 +28,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.file.FileSystem;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -504,20 +503,19 @@ public class BackupThread extends Thread {
 
     private static class Timer {
 
-        private static final SimpleDateFormat SECONDS = new SimpleDateFormat("s.SSS");
-        private static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm:ss");
-        private static final SimpleDateFormat HOURS = new SimpleDateFormat("HH:mm");
-
         public static String getTimer(long milliseconds) {
-            Date date = new Date(milliseconds);
-            double seconds = milliseconds / 1000d;
+            long seconds = milliseconds / 1000;
+            long ms = milliseconds % 1000;
+
             if (seconds < 60) {
-                return SECONDS.format(date) + "s";
-            } else if (seconds < 3600) {
-                return MINUTES.format(date) + "min";
-            } else {
-                return HOURS.format(date) + "h";
+                return String.format("%d.%03ds", seconds, ms);
             }
+
+            if (seconds < 3600) {
+                return String.format("%02d:%02dmin", seconds / 60, seconds % 60);
+            }
+
+            return String.format("%d:%02dh", seconds / 3600, (seconds % 3600) / 60);
         }
     }
 }
