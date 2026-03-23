@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import de.melanx.simplebackups.compression.CompressionBase;
 import de.melanx.simplebackups.config.BackupType;
 
 import javax.annotation.Nullable;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class BackupChain {
 
@@ -21,17 +23,19 @@ public class BackupChain {
     private final Path fullBackup;
     private final List<Path> children;
     private final BackupType backupType;
+    private final CompressionBase.BackupFormat format;
     private long lastUpdated;
 
-    public BackupChain(Path parentFolder, Path fullBackup, BackupType backupType) {
-        this(parentFolder, fullBackup, new ArrayList<>(), backupType, System.currentTimeMillis());
+    public BackupChain(Path parentFolder, Path fullBackup, BackupType backupType, CompressionBase.BackupFormat format) {
+        this(parentFolder, fullBackup, new ArrayList<>(), backupType, format, System.currentTimeMillis());
     }
 
-    public BackupChain(Path parentFolder, Path fullBackup, List<Path> children, BackupType backupType, long lastUpdated) {
+    public BackupChain(Path parentFolder, Path fullBackup, List<Path> children, BackupType backupType, CompressionBase.BackupFormat format, long lastUpdated) {
         this.parentFolder = parentFolder;
         this.fullBackup = fullBackup;
         this.children = children;
         this.backupType = backupType;
+        this.format = format;
         this.lastUpdated = lastUpdated;
     }
 
@@ -51,13 +55,17 @@ public class BackupChain {
         return this.backupType;
     }
 
+    public CompressionBase.BackupFormat getFormat() {
+        return this.format;
+    }
+
     public void addChild(Path child) {
         this.children.add(child);
     }
 
     public Path createChild() {
         int index = this.children.size() + 1;
-        Path child = Path.of("child-" + String.format("%04d", index) + ".zip");
+        Path child = Path.of("child-" + String.format("%04d", index) + this.format.getExtension());
         this.children.add(child);
         this.lastUpdated = System.currentTimeMillis();
         this.writeMetadata();
@@ -141,7 +149,19 @@ public class BackupChain {
             BackupType backupType = BackupType.valueOf(json.get("backupType").getAsString());
             long lastUpdated = json.get("lastUpdated").getAsLong();
 
-            return new BackupChain(chainDir, fullBackup, children, backupType, lastUpdated);
+            CompressionBase.BackupFormat format;
+            JsonElement formatElement = json.get("format");
+            if (formatElement == null) {
+                format = CompressionBase.BackupFormat.ZIP;
+            } else {
+                try {
+                    format = CompressionBase.BackupFormat.valueOf(formatElement.getAsString().toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException e) {
+                    format = CompressionBase.BackupFormat.ZIP;
+                }
+            }
+
+            return new BackupChain(chainDir, fullBackup, children, backupType, format, lastUpdated);
         } catch (IOException e) {
             SimpleBackups.LOGGER.warn("Failed to read metadata from {}", meta, e);
             return null;

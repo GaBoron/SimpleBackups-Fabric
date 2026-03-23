@@ -27,6 +27,7 @@
   "simplebackups.configuration.fullBackupTimer": "Full Backup Timer",
   "simplebackups.configuration.compressionLevel": "Compression Level",
   "simplebackups.configuration.outputPath": "Output Path",
+  "simplebackups.configuration.backupFormat": "Backup Format",
   "simplebackups.configuration.error_handling": "Error Handling",
   "simplebackups.configuration.collectErrors": "Collect I/O Errors",
   "simplebackups.configuration.deleteUnfinishedBackup": "Delete Unfinished Backups",

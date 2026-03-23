@@ -1,5 +1,6 @@
 package de.melanx.simplebackups;
 
+import de.melanx.simplebackups.compression.CompressionBase;
 import de.melanx.simplebackups.config.CommonConfig;
 
 import javax.annotation.Nullable;
@@ -39,9 +40,13 @@ public class BackupChainManager {
     }
 
     public BackupChain createChain(String baseName) {
+        return this.createChain(baseName, CommonConfig.getBackupFormat());
+    }
+
+    public BackupChain createChain(String baseName, CompressionBase.BackupFormat format) {
         Path chainDir = CommonConfig.getOutputPath(this.levelId).resolve(baseName);
-        Path backupFilePath = Paths.get("full.zip");
-        BackupChain backupChain = new BackupChain(chainDir, backupFilePath, CommonConfig.backupType());
+        Path backupFilePath = Paths.get("full" + format.getExtension());
+        BackupChain backupChain = new BackupChain(chainDir, backupFilePath, CommonConfig.backupType(), format);
 
         this.addChain(backupChain);
         return backupChain;

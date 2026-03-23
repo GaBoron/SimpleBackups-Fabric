@@ -23,8 +23,9 @@ public class SimpleBackups {
     public static final String MODID = "simplebackups";
 
     public SimpleBackups(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
-        modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.CONFIG);
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.CONFIG);
+        ToolsLoader.init();
+        modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.CONFIG, SimpleBackups.MODID + "/common.toml");
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.CONFIG, SimpleBackups.MODID + "/server.toml");
         NeoForge.EVENT_BUS.register(new EventListener());
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onRegisterPayloadHandler);

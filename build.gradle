@@ -78,4 +78,7 @@ mod.configure {
 
 dependencies {
     compileOnly "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
+
+    implementation(jarJar("org.tukaani:xz:1.11"))
+    compileOnly "com.github.luben:zstd-jni:1.5.7-7"
 }

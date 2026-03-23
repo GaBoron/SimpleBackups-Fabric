@@ -2,6 +2,7 @@ package de.melanx.simplebackups;
 
 import de.melanx.simplebackups.compat.CherishedWorldsCompat;
 import de.melanx.simplebackups.compat.Mc2DiscordCompat;
+import de.melanx.simplebackups.compression.CompressionBase;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
@@ -25,19 +26,20 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
-import java.nio.file.*;
-import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class BackupThread extends Thread {
 
@@ -49,24 +51,27 @@ public class BackupThread extends Thread {
             .appendValue(ChronoField.MINUTE_OF_HOUR, 2).appendLiteral('-')
             .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
             .toFormatter();
-    private static final String LATEST_LOG_ENTRY = "backup.log";
     private static final int LOG_BUFFER_SIZE = 8192;
     public static final Logger LOGGER = LoggerFactory.getLogger(BackupThread.class);
-    public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024; // 128 MB
     private final MinecraftServer server;
     private final boolean quiet;
+    private final CompressionBase.BackupFormat format;
     private final long lastSaved;
     private final boolean fullBackup;
     private final LevelStorageSource.LevelStorageAccess storageSource;
     private final Path backupPath;
-    private final Set<Path> errors = new HashSet<>();
     private final BackupChainManager manager;
     private boolean forceFullBackup = false;
 
     private BackupThread(@Nonnull MinecraftServer server, boolean quiet, BackupData backupData) {
+        this(server, quiet, backupData, CommonConfig.getBackupFormat());
+    }
+
+    private BackupThread(@Nonnull MinecraftServer server, boolean quiet, BackupData backupData, CompressionBase.BackupFormat format) {
         this.server = server;
         this.storageSource = server.storageSource;
         this.quiet = quiet;
+        this.format = format;
         if (backupData == null) {
             this.lastSaved = 0;
             this.fullBackup = true;
@@ -122,8 +127,8 @@ public class BackupThread extends Thread {
         return System.currentTimeMillis() - CommonConfig.getTimer(arePlayersOnline) > backupData.getLastSaved();
     }
 
-    public static void createBackup(MinecraftServer server, boolean quiet) {
-        BackupThread thread = new BackupThread(server, quiet, null);
+    public static void createBackup(MinecraftServer server, boolean quiet, CompressionBase.BackupFormat format) {
+        BackupThread thread = new BackupThread(server, quiet, null, format);
         thread.start();
     }
 
@@ -173,7 +178,7 @@ public class BackupThread extends Thread {
                 Files.createDirectories(this.backupPath);
                 long start = System.currentTimeMillis();
                 this.broadcast("simplebackups.backup_started", Style.EMPTY.withColor(ChatFormatting.GOLD));
-                backupResult = this.makeWorldBackup(backupFilePath);
+                backupResult = CompressionBase.makeBackup(this.server, this.storageSource, this.backupPath, backupFilePath, this.createFullBackup(), this.format, this.lastSaved);
                 long end = System.currentTimeMillis();
                 time = Timer.getTimer(end - start);
 
@@ -192,36 +197,31 @@ public class BackupThread extends Thread {
             }
 
             if (backupResult != null) {
-                // Capture the current log tail before reporting sizes so storage accounting sees the log entry.
-                long backupFileSize = this.addLogToBackup(backupFilePath, latestLogPath, latestLogSnapshot, backupResult.fileSize);
+                this.addBackupLog(backupFilePath, latestLogPath, latestLogSnapshot);
+                long backupFileSize = backupResult.fileSize();
                 this.saveStorageSize();
 
-                boolean hasErrors = !this.errors.isEmpty();
-                this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(hasErrors ? ChatFormatting.YELLOW : ChatFormatting.GOLD),
+                this.broadcast("simplebackups.backup_finished", Style.EMPTY.withColor(backupResult.hasErrors() ? ChatFormatting.YELLOW : ChatFormatting.GOLD),
                         time, StorageSize.getFormattedSize(backupFileSize), StorageSize.getFormattedSize(this.getOutputFolderSize()));
 
-                if (hasErrors) {
-                    MutableComponent erroredFiles = Component.literal(this.errors.stream()
+                if (backupResult.hasErrors()) {
+                    MutableComponent erroredFiles = Component.literal(backupResult.errors().stream()
                             .map(file -> "- " + file.toString())
                             .collect(Collectors.joining("\n"))
                     );
 
                     this.broadcast("simplebackups.backup_errors", Style.EMPTY.withColor(ChatFormatting.RED)
-                            .withHoverEvent(new HoverEvent.ShowText(erroredFiles)), this.errors.size());
-                    BackupThread.LOGGER.error("Skipped {} files during backup because of errors:", this.errors.size());
-                    for (Path failedFile : this.errors) {
+                            .withHoverEvent(new HoverEvent.ShowText(erroredFiles)), backupResult.errors().size());
+                    BackupThread.LOGGER.error("Skipped {} files during backup because of errors:", backupResult.errors().size());
+                    for (Path failedFile : backupResult.errors()) {
                         BackupThread.LOGGER.error(" - {}", failedFile);
                     }
                 }
-
-                // Refresh the archive after the final log lines so support dumps include the full run() trail.
-                long finalBackupFileSize = this.addLogToBackup(backupFilePath, latestLogPath, latestLogSnapshot, backupFileSize);
-                if (finalBackupFileSize != backupFileSize) {
-                    this.saveStorageSize();
-                }
-            } else {
-                this.addLogToBackup(backupFilePath, latestLogPath, latestLogSnapshot, 0L);
             }
+
+            // Overwrite existing for the new log lines like errors and finished
+            this.addBackupLog(backupFilePath, latestLogPath, latestLogSnapshot);
+            this.saveStorageSize();
         } catch (IOException e) {
             SimpleBackups.LOGGER.error("Error backing up", e);
         }
@@ -233,9 +233,9 @@ public class BackupThread extends Thread {
         String baseName = LocalDateTime.now().format(FORMATTER);
         BackupChain latestChain = this.manager.getLatestChain();
 
-        if (this.fullBackup || latestChain == null) {
+        if (this.fullBackup || latestChain == null || latestChain.getFormat() != this.format) {
             this.forceFullBackup = true;
-            BackupChain chain = this.manager.createChain(baseName);
+            BackupChain chain = this.manager.createChain(baseName, this.format);
             return chain.getFullBackup();
         }
 
@@ -295,97 +295,6 @@ public class BackupThread extends Thread {
         return Component.literal(String.format(FMLTranslations.getPattern(key, () -> key), parameters));
     }
 
-    // vanilla copy with modifications
-    private BackupResult makeWorldBackup(Path outputFile) throws IOException {
-        this.storageSource.checkLock();
-        if (CommonConfig.saveAll()) {
-            this.server.executeBlocking(() -> {
-                this.server.saveEverything(true, false, true);
-            });
-        }
-
-        try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)))) {
-            zipStream.setLevel(CommonConfig.getCompressionLevel());
-            Path levelName = Paths.get(this.storageSource.getLevelId());
-            Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.getLevelId()).toRealPath();
-
-            List<Path> ignoredPaths = CommonConfig.getIgnoredPaths();
-            List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();
-            String ignoredFilesRegex = CommonConfig.getIgnoredFilesRegex();
-            boolean ignoreSomething = !ignoredPaths.isEmpty() || !ignoredFiles.isEmpty() || !ignoredFilesRegex.isEmpty();
-            FileStore fileStore = Files.getFileStore(outputFile);
-
-            Files.walkFileTree(levelPath, new SimpleFileVisitor<>() {
-
-                @Nonnull
-                public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
-                    if (file.endsWith("session.lock")) {
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    if (file.endsWith("biomancy.spatial.db")) {
-                        SimpleBackups.LOGGER.info("Skipping \"{}\" - see https://github.com/Elenterius/Biomancy/issues/175", levelPath.relativize(file));
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    if (ignoreSomething && this.shouldSkipFile(levelPath.relativize(file))) {
-                        SimpleBackups.LOGGER.debug("Skipping file: {}", file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    long lastModified = file.toFile().lastModified();
-                    if (BackupThread.this.createFullBackup() || lastModified - BackupThread.this.lastSaved > 0) {
-                        if (fileStore.getUsableSpace() - attrs.size() - BACKUP_BUFFER_SIZE < 0L) {
-                            throw new NotEnoughDiskSpaceException("Not enough space on disk to create backup");
-                        }
-
-                        String completePath = levelName.resolve(levelPath.relativize(file)).toString().replace('\\', '/');
-                        ZipEntry zipentry = new ZipEntry(completePath);
-                        try (InputStream inputStream = Files.newInputStream(file)) {
-                            zipStream.putNextEntry(zipentry);
-                            inputStream.transferTo(zipStream);
-                            zipStream.closeEntry();
-                        } catch (IOException e) {
-                            this.visitFileFailed(file, e);
-                        }
-                    }
-
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Nonnull
-                @Override
-                public FileVisitResult visitFileFailed(@Nonnull Path file, @Nonnull IOException exc) throws IOException {
-                    if (exc instanceof NoSuchFileException || exc instanceof FileNotFoundException) {
-                        SimpleBackups.LOGGER.debug("Skipped vanished file: {}", file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    if (CommonConfig.collectErrors()) {
-                        SimpleBackups.LOGGER.error("Failed to backup file: {}", file, exc);
-                        BackupThread.this.errors.add(levelPath.relativize(file));
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    IOException detailedException = new IOException("Failed to backup file: " + file, exc);
-                    return super.visitFileFailed(file, detailedException);
-                }
-
-                private boolean shouldSkipFile(Path relativePath) {
-                    return ignoredPaths.contains(relativePath.getParent())
-                            || ignoredFiles.contains(relativePath)
-                            || (!ignoredFilesRegex.isEmpty() && this.getNormalizedPath(relativePath).matches(ignoredFilesRegex));
-                }
-
-                private String getNormalizedPath(Path path) {
-                    return path.toString().replace('\\', '/');
-                }
-            });
-        }
-
-        return new BackupResult(outputFile, Files.size(outputFile));
-    }
-
     private LogSnapshot getLogSnapshot(Path latestLogPath) {
         if (!CommonConfig.captureLatestLog()) {
             return LogSnapshot.disabled();
@@ -408,43 +317,48 @@ public class BackupThread extends Thread {
         }
     }
 
-    private long addLogToBackup(Path outputFile, Path latestLogPath, LogSnapshot logSnapshot, long fallbackSize) {
+    private void addBackupLog(Path outputFile, Path latestLogPath, LogSnapshot logSnapshot) {
         if (!logSnapshot.isEnabled() || !Files.isRegularFile(latestLogPath) || !Files.isRegularFile(outputFile)) {
-            return this.getFileSize(outputFile, fallbackSize);
+            return;
         }
 
         try {
             BasicFileAttributes attributes = Files.readAttributes(latestLogPath, BasicFileAttributes.class);
             if (!attributes.isRegularFile()) {
-                return this.getFileSize(outputFile, fallbackSize);
+                return;
             }
 
             long startOffset = logSnapshot.hasRolledOver(attributes) ? 0L : logSnapshot.offset();
             long bytesToCopy = attributes.size() - startOffset;
             if (bytesToCopy <= 0L) {
-                return this.getFileSize(outputFile, fallbackSize);
+                return;
             }
 
+            Path logFile = this.getLogPath(outputFile);
             try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(latestLogPath));
-                 FileSystem zipFileSystem = FileSystems.newFileSystem(outputFile, (ClassLoader) null);
-                 OutputStream outputStream = Files.newOutputStream(zipFileSystem.getPath(LATEST_LOG_ENTRY),
-                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+                 OutputStream outputStream = new BufferedOutputStream(
+                         Files.newOutputStream(
+                                 logFile,
+                                 StandardOpenOption.CREATE,
+                                 StandardOpenOption.TRUNCATE_EXISTING,
+                                 StandardOpenOption.WRITE
+                         )
+                 )) {
                 this.skip(inputStream, startOffset);
                 this.copy(inputStream, outputStream, bytesToCopy);
             }
         } catch (IOException e) {
-            LOGGER.warn("Failed to include latest.log in backup archive", e);
+            LOGGER.warn("Failed to write log file for backup", e);
         }
-
-        return this.getFileSize(outputFile, fallbackSize);
     }
 
-    private long getFileSize(Path path, long fallbackSize) {
-        try {
-            return Files.isRegularFile(path) ? Files.size(path) : fallbackSize;
-        } catch (IOException e) {
-            return fallbackSize;
-        }
+    private Path getLogPath(Path outputFile) {
+        String filename = outputFile.getFileName().toString();
+        String ext = this.format.getExtension();
+        String stem = filename.endsWith(ext) ? filename.substring(0, filename.length() - ext.length()) : filename;
+        Path parent = outputFile.getParent();
+
+        return parent != null ? parent.resolve(stem + ".log") : Path.of(stem + ".log");
     }
 
     private void copy(InputStream inputStream, OutputStream outputStream, long bytesToCopy) throws IOException {
@@ -498,8 +412,6 @@ public class BackupThread extends Thread {
                     || ((this.fileKey != null || currentFileKey != null) && !Objects.equals(this.fileKey, currentFileKey));
         }
     }
-
-    private record BackupResult(Path outputFile, long fileSize) {}
 
     private static class Timer {
 

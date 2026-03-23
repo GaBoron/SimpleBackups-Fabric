@@ -1,6 +1,8 @@
 package de.melanx.simplebackups.config;
 
 import de.melanx.simplebackups.StorageSize;
+import de.melanx.simplebackups.ToolsLoader;
+import de.melanx.simplebackups.compression.CompressionBase;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import javax.annotation.Nullable;
@@ -36,6 +38,7 @@ public class CommonConfig {
     private static ModConfigSpec.BooleanValue sendMessages;
     private static ModConfigSpec.ConfigValue<String> maxDiskSize;
     private static ModConfigSpec.ConfigValue<String> outputPath;
+    private static ModConfigSpec.EnumValue<CompressionBase.BackupFormat> backupFormat;
     private static ModConfigSpec.BooleanValue noPlayerBackups;
     private static ModConfigSpec.IntValue noPlayerBackupCount;
     private static ModConfigSpec.IntValue noPlayerBackupTimer;
@@ -60,7 +63,7 @@ public class CommonConfig {
                 .defineEnum("backupType", BackupType.INCREMENTAL);
         saveAll = builder.comment("Should a save-all be forced before backup?")
                 .define("saveAll", true);
-        captureLatestLog = builder.comment("Should log lines written to logs/latest.log during backup be stored inside the backup archive as latest.log?")
+        captureLatestLog = builder.comment("Should log lines written to logs/latest.log during backup be saved as a .log file alongside the backup archive?")
                 .define("captureLatestLog", true);
         fullBackupTimer = builder.comment("How often should a full backup be created if only modified files should be saved? This creates a full backup when x minutes are over and the next backup needs to be done. Once a year is default.")
                 .defineInRange("fullBackupTimer", 525960, 1, 5259600);
@@ -81,6 +84,11 @@ public class CommonConfig {
                 .define("maxDiskSize", DEFAULT_DISK_SIZE);
         outputPath = builder.comment("Used to define the output path.")
                 .define("outputPath", "simplebackups");
+        backupFormat = builder.comment("Defines the backup format.",
+                        "If you choose ZSTD, you need to download the zstd-jni file and put it in " + ToolsLoader.RELATIVE_TOOLS_DIR,
+                        "A direct download link is here: https://repo1.maven.org/maven2/com/github/luben/zstd-jni/1.5.7-7/zstd-jni-1.5.7-7.jar",
+                        "DO NOT extract the jar file. For more information about this tool, visit its GitHub repo: https://github.com/luben/zstd-jni")
+                .defineEnum("backupFormat", CompressionBase.BackupFormat.ZIP);
         noPlayerBackups = builder.comment("Create backups, even if nobody is online")
                 .define("noPlayerBackups", false);
         noPlayerBackupCount = builder.comment("How many backups should be created after the last player left? Set to 0 to disable.")
@@ -181,6 +189,10 @@ public class CommonConfig {
         } catch (IOException e) {
             return withSubDir ? base.resolve(levelId) : base;
         }
+    }
+
+    public static CompressionBase.BackupFormat getBackupFormat() {
+        return backupFormat.get();
     }
 
     public static boolean doNoPlayerBackups() {
