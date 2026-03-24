@@ -34,7 +34,7 @@ mod.configure {
         }
     }
 
-    neoforge "${baseVersion}.0.0-alpha.15+pre-3"
+    neoforge "${baseVersion}.0.1-beta"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'
