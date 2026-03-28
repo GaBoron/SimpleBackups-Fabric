@@ -40,7 +40,6 @@ public abstract class CompressionBase {
         FileStore fileStore = Files.getFileStore(backupPath);
         CompressionBase compressor = switch(format) {
             case ZIP -> new ZipCompression(fileStore, doFullBackup, lastSaved);
-            case SEVEN_ZIP -> new SevenZipCompression(fileStore, doFullBackup, lastSaved);
             case ZSTD -> {
                 if (!ZstdCompression.isAvailable()) {
                     throw new IOException("ZSTD compression is selected but zstd-jni is not installed. Download it and place it in " + ToolsLoader.RELATIVE_TOOLS_DIR + ".");
@@ -63,7 +62,7 @@ public abstract class CompressionBase {
 
     protected static LZMA2Options createXzOptions() {
         int lvl = CommonConfig.getCompressionLevel();
-        int preset = Math.max(0, Math.min(9, lvl));
+        int preset = Math.clamp(lvl, 0, 9);
         try {
             LZMA2Options opt = new LZMA2Options();
             opt.setPreset(preset);
@@ -168,7 +167,6 @@ public abstract class CompressionBase {
 
     public enum BackupFormat {
         ZIP(".zip"),
-        SEVEN_ZIP(".7z"),
         ZSTD(".tar.zst");
 
         private final String extension;
