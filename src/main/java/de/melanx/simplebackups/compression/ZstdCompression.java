@@ -16,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class ZstdCompression extends CompressionBase {
 
     public static boolean isAvailable() {
-        return ToolsLoader.isClassAvailable("com.github.luben.zstd.ZstdOutputStream");
+        return ToolsLoader.isZstdAvailable();
     }
 
     public ZstdCompression(FileStore fileStore, boolean doFullBackup, long lastSaved) {

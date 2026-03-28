@@ -1,5 +1,5 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.1.1'
+    id 'org.moddingx.modgradle.meta' version '5.1.2'
 }
 
 repositories {
@@ -43,6 +43,11 @@ mod.configure {
         sources {
             publishToRepositories()
         }
+        extra('jarJar') {
+            classifier 'zstd'
+            publishToRepositories()
+            uploadToModHostingSites()
+        }
     }
 
     changelog {
@@ -76,9 +81,19 @@ mod.configure {
     }
 }
 
+tasks.named('jarJar') {
+    from('licenses/zstd-jni.txt') {
+        into('META-INF/LICENSES')
+    }
+
+    from('licenses/xz.txt') {
+        into('META-INF/LICENSES')
+    }
+}
+
 dependencies {
     compileOnly "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
 
-    implementation(jarJar("org.tukaani:xz:1.11"))
-    compileOnly "com.github.luben:zstd-jni:1.5.7-7"
+    implementation(jarJar('org.tukaani:xz:1.12'))
+    implementation(jarJar('com.github.luben:zstd-jni:1.5.7-7'))
 }

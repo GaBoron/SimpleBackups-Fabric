@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -50,6 +51,10 @@ public class ToolsLoader {
         if (!urls.isEmpty()) {
             classLoader = new URLClassLoader(urls.toArray(URL[]::new), ToolsLoader.class.getClassLoader());
         }
+    }
+
+    public static boolean isZstdAvailable() {
+        return ToolsLoader.isClassAvailable("com.github.luben.zstd.Zstd");
     }
 
     public static boolean isClassAvailable(String className) {
