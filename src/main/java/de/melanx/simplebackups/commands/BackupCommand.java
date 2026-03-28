@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import de.melanx.simplebackups.BackupThread;
 import de.melanx.simplebackups.compression.CompressionBase;
+import de.melanx.simplebackups.config.CommonConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
@@ -37,7 +38,7 @@ public class BackupCommand implements Command<CommandSourceStack> {
         try {
             format = context.getArgument("format", CompressionBase.BackupFormat.class);
         } catch (IllegalArgumentException e) {
-            format = CompressionBase.BackupFormat.ZIP;
+            format = CommonConfig.getBackupFormat();
         }
 
         MinecraftServer server = context.getSource().getServer();
