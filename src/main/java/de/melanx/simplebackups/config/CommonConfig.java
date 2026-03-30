@@ -39,6 +39,7 @@ public class CommonConfig {
     private static ModConfigSpec.ConfigValue<String> maxDiskSize;
     private static ModConfigSpec.ConfigValue<String> outputPath;
     private static ModConfigSpec.EnumValue<CompressionBase.BackupFormat> backupFormat;
+    private static ModConfigSpec.BooleanValue preCopy;
     private static ModConfigSpec.BooleanValue noPlayerBackups;
     private static ModConfigSpec.IntValue noPlayerBackupCount;
     private static ModConfigSpec.IntValue noPlayerBackupTimer;
@@ -89,6 +90,15 @@ public class CommonConfig {
                         "A direct download link is here: https://repo1.maven.org/maven2/com/github/luben/zstd-jni/1.5.7-7/zstd-jni-1.5.7-7.jar",
                         "DO NOT extract the jar file. For more information about this tool, visit its GitHub repo: https://github.com/luben/zstd-jni")
                 .defineEnum("backupFormat", CompressionBase.BackupFormat.ZIP);
+        preCopy = builder
+                .comment(
+                        "Copy the world to a temporary directory before compressing.",
+                        "For other formats than ZIP, this is highly recommended to avoid errors during compression.",
+                        "",
+                        "Disabling this saves temporary disk space (~world size during backup) and reduces",
+                        "SSD write cycles, but risks inconsistent backups on large worlds and troubles with other formats than ZIP."
+                )
+                .define("preCopy", true);
         noPlayerBackups = builder.comment("Create backups, even if nobody is online")
                 .define("noPlayerBackups", false);
         noPlayerBackupCount = builder.comment("How many backups should be created after the last player left? Set to 0 to disable.")
@@ -193,6 +203,10 @@ public class CommonConfig {
 
     public static CompressionBase.BackupFormat getBackupFormat() {
         return backupFormat.get();
+    }
+
+    public static boolean preCopy() {
+        return preCopy.get();
     }
 
     public static boolean doNoPlayerBackups() {

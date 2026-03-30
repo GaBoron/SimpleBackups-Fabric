@@ -27,6 +27,7 @@
   "simplebackups.configuration.fullBackupTimer": "Vollständiger Backup-Timer",
   "simplebackups.configuration.compressionLevel": "Kompressionsstufe",
   "simplebackups.configuration.outputPath": "Ausgabepfad",
+  "simplebackups.configuration.preCopy": "Vorab-Kopieren",
   "simplebackups.configuration.backupFormat": "Backup Format",
   "simplebackups.configuration.error_handling": "Fehlerbehandlung",
   "simplebackups.configuration.collectErrors": "Sammeln von I/O-Fehlern",

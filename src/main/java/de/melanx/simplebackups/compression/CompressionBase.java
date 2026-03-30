@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class CompressionBase {
@@ -51,7 +52,29 @@ public abstract class CompressionBase {
         Path levelName = Paths.get(storageAccess.getLevelId());
         Path levelPath = storageAccess.getWorldDir().resolve(storageAccess.getLevelId()).toRealPath();
 
-        compressor.makeBackup(levelName, levelPath, backupFilePath);
+        Path sourceDir = levelPath;
+        Path tempDir = null;
+        try {
+            boolean doPreCopy = CommonConfig.preCopy();
+
+            if (!doPreCopy && format != BackupFormat.ZIP) {
+                SimpleBackups.LOGGER.info("Pre-copy disabled for {} compression. It's highly recommended to enable it to avoid problems!", format.name());
+            }
+
+            if (doPreCopy) {
+                tempDir = Files.createTempDirectory("simplebackups-precopy-");
+                compressor.copyToTemp(levelPath, tempDir);
+                sourceDir = tempDir;
+            }
+
+            compressor.makeBackup(levelName, sourceDir, backupFilePath);
+        } catch (IOException e) {
+            SimpleBackups.LOGGER.error("Failed to create backup", e);
+        } finally {
+            if (tempDir != null) {
+                compressor.deleteTempDir(tempDir);
+            }
+        }
 
         return new BackupResult(backupFilePath, Files.size(backupFilePath), compressor.errors);
     }
@@ -59,6 +82,30 @@ public abstract class CompressionBase {
     public abstract void makeBackup(Path levelName, Path levelPath, Path outputFile) throws IOException;
 
     public abstract String getExtension();
+
+    protected final void copyToTemp(Path source, Path dest) throws IOException {
+        long start = System.currentTimeMillis();
+
+        SimpleBackups.LOGGER.info("Pre-copying {} to {}", source, dest);
+
+        Files.walkFileTree(source, new PreCopyFileVisitor(source, dest));
+        long end = System.currentTimeMillis() - start;
+
+        SimpleBackups.LOGGER.info("Pre-copy took {}ms for {} Bytes", end, Files.size(source));
+    }
+
+    protected final void deleteTempDir(Path tempDir) {
+        try {
+            Files.walk(tempDir).sorted(Comparator.reverseOrder())
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException ignored) {}
+                    });
+        } catch (IOException e) {
+            SimpleBackups.LOGGER.warn("Failed to delete pre-copy temp directory: {}", tempDir, e);
+        }
+    }
 
     protected static LZMA2Options createXzOptions() {
         int lvl = CommonConfig.getCompressionLevel();
@@ -69,6 +116,32 @@ public abstract class CompressionBase {
             return opt;
         } catch (Exception e) {
             return new LZMA2Options();
+        }
+    }
+
+    private class PreCopyFileVisitor extends CompressionFileVisitor {
+
+        private final Path source;
+        private final Path dest;
+
+        public PreCopyFileVisitor(Path source, Path dest) {
+            super(source);
+            this.source = source;
+            this.dest = dest;
+        }
+
+        @Override
+        protected FileVisitResult visitFile_(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
+            Path target = this.dest.resolve(this.source.relativize(file));
+
+            try {
+                Files.createDirectories(target.getParent());
+                Files.copy(file, target, StandardCopyOption.COPY_ATTRIBUTES);
+            } catch (IOException e) {
+                this.visitFileFailed(file, e);
+            }
+
+            return FileVisitResult.CONTINUE;
         }
     }
 
