@@ -127,6 +127,7 @@ public class BackupChain {
         }
         json.add("children", children);
         json.addProperty("lastUpdated", this.lastUpdated);
+        json.addProperty("format", this.format.name());
         try {
             Files.writeString(meta, json.toString());
         } catch (IOException e) {
