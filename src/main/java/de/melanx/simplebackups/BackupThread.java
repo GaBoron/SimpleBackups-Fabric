@@ -317,7 +317,7 @@ public class BackupThread extends Thread {
     }
 
     private void addBackupLog(Path outputFile, Path latestLogPath, LogSnapshot logSnapshot) {
-        if (!logSnapshot.isEnabled() || !Files.isRegularFile(latestLogPath) || !Files.isRegularFile(outputFile)) {
+        if (!logSnapshot.isEnabled() || !Files.isRegularFile(latestLogPath)) {
             return;
         }
 
