@@ -7,6 +7,7 @@
   "simplebackups.backups_paused": "Backups pausiert",
   "simplebackups.commands.only_modified": "Es werden nicht nur veränderte Dateien gesichert, prüfe deine Konfigurationsdatei",
   "simplebackups.commands.is_merging": "Ein Zusammenführungsvorgang ist bereits im Gange",
+  "simplebackups.commands.error": "Es gab einen Fehler beim Zusammenführen der Backups: %s",
   "simplebackups.commands.finished": "Zusammenführen der Backups erfolgreich abgeschlossen unter %s",
   "simplebackups.not_enough_space": "Nicht genug Speicherplatz auf dem Datenträger, um das Backup zu erstellen. Vorgang abgebrochen!",
 

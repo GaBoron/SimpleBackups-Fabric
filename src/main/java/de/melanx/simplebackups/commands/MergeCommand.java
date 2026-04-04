@@ -12,22 +12,13 @@ import de.melanx.simplebackups.BackupData;
 import de.melanx.simplebackups.SimpleBackups;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
+import de.melanx.simplebackups.merging.MergerBase;
+import de.melanx.simplebackups.merging.ZipMerger;
+import de.melanx.simplebackups.merging.ZstdMerger;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 public class MergeCommand implements Command<CommandSourceStack> {
 
@@ -59,26 +50,16 @@ public class MergeCommand implements Command<CommandSourceStack> {
         try {
             String chainName = commandContext.getArgument("chain", String.class);
             BackupChainManager manager = BackupChainManager.get(commandContext.getSource().getServer().storageSource.getLevelId());
-            List<Path> zipFiles = new ArrayList<>();
             for (BackupChain chain : manager.getChains()) {
                 if (chain.getParentFolder().getFileName().toString().equals(chainName)) {
-                    BackupType backupType = chain.getBackupType();
-                    switch(backupType) {
-                        case FULL_BACKUPS ->
-                                throw new SimpleCommandExceptionType(Component.translatable("simplebackups.commands.only_modified")).create();
-                        case INCREMENTAL -> {
-                            zipFiles.add(chain.getFullBackup());
-                            zipFiles.addAll(chain.getChildren());
-                        }
-                        case DIFFERENTIAL -> {
-                            zipFiles.add(chain.getFullBackup());
-                            zipFiles.add(chain.getChildren().getLast());
-                        }
-                    }
+                    MergerBase base = switch(chain.getFormat()) {
+                        case ZIP -> new ZipMerger(chain, commandContext);
+                        case ZSTD -> new ZstdMerger(chain, commandContext);
+                    };
 
-                    MergingThread mergingThread = new MergingThread(zipFiles, commandContext);
                     data.startMerging();
-                    mergingThread.start();
+                    base.merge();
+                    break;
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -89,86 +70,5 @@ public class MergeCommand implements Command<CommandSourceStack> {
 
         data.stopMerging();
         return 1;
-    }
-
-    private static class MergingThread extends Thread {
-
-        private final List<Path> backupSources;
-        private final CommandContext<CommandSourceStack> commandContext;
-
-        public MergingThread(List<Path> backupSources, CommandContext<CommandSourceStack> commandContext) {
-            this.backupSources = backupSources;
-            this.commandContext = commandContext;
-        }
-
-        @Override
-        public void run() {
-            Path mainBackupsDir = CommonConfig.getOutputPath("ignore").getParent();
-            Path mergedBackupPath = mainBackupsDir.resolve("merged_backup-" + UUID.randomUUID() + ".zip");
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(mergedBackupPath.toFile()))) {
-                Map<String, Path> dataFiles = new HashMap<>();
-
-                // Walk the file tree of the output path
-                for (Path backupSource : this.backupSources) {
-                    this.processFile(backupSource, dataFiles);
-                }
-
-                // Write the merged zip file
-                this.writeMergedZipFile(zos, dataFiles);
-            } catch (IOException e) {
-                throw new IllegalStateException("Error while processing backups", e);
-            } finally {
-                this.commandContext.getSource().sendSuccess(() -> Component.translatable("simplebackups.commands.finished", mainBackupsDir.getParent().relativize(mergedBackupPath).toString()), false);
-            }
-        }
-
-        private void processFile(Path file, Map<String, Path> zipFiles) throws IOException {
-            if (file.toString().endsWith(".zip")) {
-                try (ZipFile zipFile = new ZipFile(file.toFile())) {
-                    Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-                    while (entries.hasMoreElements()) {
-                        ZipEntry entry = entries.nextElement();
-                        String name = entry.getName();
-
-                        zipFiles.merge(name, file, this::getLatestModifiedFile);
-                    }
-                }
-            }
-        }
-
-        private Path getLatestModifiedFile(Path existingFile, Path newFile) {
-            try {
-                FileTime existingFileTime = Files.getLastModifiedTime(existingFile);
-                FileTime newFileTime = Files.getLastModifiedTime(newFile);
-                return existingFileTime.compareTo(newFileTime) > 0 ? existingFile : newFile;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        private void writeMergedZipFile(ZipOutputStream zos, Map<String, Path> zipFiles) throws IOException {
-            for (Map.Entry<String, Path> entry : zipFiles.entrySet()) {
-                String fileName = entry.getKey();
-                Path zipFilePath = entry.getValue();
-
-                try (ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {
-                    ZipEntry zipEntry = zipFile.getEntry(fileName);
-                    if (zipEntry != null) {
-                        zos.putNextEntry(new ZipEntry(fileName));
-
-                        try (InputStream is = zipFile.getInputStream(zipEntry)) {
-                            byte[] buffer = new byte[1024];
-                            int len;
-                            while ((len = is.read(buffer)) > 0) {
-                                zos.write(buffer, 0, len);
-                            }
-                        }
-
-                        zos.closeEntry();
-                    }
-                }
-            }
-        }
     }
 }

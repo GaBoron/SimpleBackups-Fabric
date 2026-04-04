@@ -7,6 +7,7 @@
   "simplebackups.backups_paused": "Backups paused",
   "simplebackups.commands.only_modified": "Not only modified files are being backed up, please check your configuration file",
   "simplebackups.commands.is_merging": "A merge operation is already in progress",
+  "simplebackups.commands.error": "There was an error while merging backups: %s",
   "simplebackups.commands.finished": "Merging backups completed successfully at %s",
   "simplebackups.not_enough_space": "Not enough space on disk to create backup. Aborted!",
 

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -63,6 +64,26 @@ public class ToolsLoader {
             return true;
         } catch (ClassNotFoundException e) {
             return false;
+        }
+    }
+
+    /**
+     * Wraps the given input stream in a {@code ZstdInputStream} loaded from the
+     * tools classloader.
+     *
+     * @param in source stream of zstd-compressed data
+     * @return decompressing wrapper stream
+     * @throws IOException if zstd-jni is not available or instantiation fails
+     */
+    public static InputStream wrapZstdInput(InputStream in) throws IOException {
+        if (classLoader == null) {
+            throw new IOException("zstd-jni is not available in external-dependencies");
+        }
+        try {
+            Class<?> clazz = classLoader.loadClass("com.github.luben.zstd.ZstdInputStream");
+            return (InputStream) clazz.getConstructor(InputStream.class).newInstance(in);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException("Failed to create ZstdInputStream", e);
         }
     }
 
