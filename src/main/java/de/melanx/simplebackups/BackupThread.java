@@ -8,6 +8,7 @@ import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.network.Pause;
+import de.melanx.simplebackups.sbk.SbkException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.network.chat.Component;
@@ -184,7 +185,7 @@ public class BackupThread extends Thread {
             } catch (NotEnoughDiskSpaceException e) {
                 BackupThread.this.broadcast("simplebackups.not_enough_space", Style.EMPTY.withColor(ChatFormatting.RED));
                 Files.deleteIfExists(backupFilePath);
-            } catch (IOException e) {
+            } catch (IOException | SbkException e) {
                 if (CommonConfig.deleteUnfinishedBackup()) {
                     this.broadcast("simplebackups.backup_failed_delete", Style.EMPTY.withColor(ChatFormatting.RED));
                     Files.deleteIfExists(backupFilePath);

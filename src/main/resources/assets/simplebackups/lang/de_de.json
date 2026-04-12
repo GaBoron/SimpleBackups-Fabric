@@ -29,6 +29,7 @@
   "simplebackups.configuration.compressionLevel": "Kompressionsstufe",
   "simplebackups.configuration.outputPath": "Ausgabepfad",
   "simplebackups.configuration.preCopy": "Vorab-Kopieren",
+  "simplebackups.configuration.sbkAlgorithm": "SBK-Algorithmus",
   "simplebackups.configuration.backupFormat": "Backup Format",
   "simplebackups.configuration.error_handling": "Fehlerbehandlung",
   "simplebackups.configuration.collectErrors": "Sammeln von I/O-Fehlern",

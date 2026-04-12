@@ -5,9 +5,9 @@ import de.melanx.simplebackups.SimpleBackups;
 import de.melanx.simplebackups.ToolsLoader;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
+import de.melanx.simplebackups.sbk.SbkException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import org.tukaani.xz.LZMA2Options;
 
 import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
@@ -17,9 +17,11 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class CompressionBase {
 
+    private static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".+\\d{10}\\.neoforge-tmp$");   // NeoForge copy - net.neoforged.neoforge.common.IOUtilities
     public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024; // 128 MB
     protected final List<Path> errors = new ArrayList<>();
     protected final FileStore fileStore;
@@ -47,6 +49,7 @@ public abstract class CompressionBase {
                 }
                 yield new ZstdCompression(fileStore, doFullBackup, lastSaved);
             }
+            case SBK -> new SbkCompression(fileStore, doFullBackup, lastSaved);
         };
 
         Path levelName = Paths.get(storageAccess.getLevelId());
@@ -68,7 +71,7 @@ public abstract class CompressionBase {
             }
 
             compressor.makeBackup(levelName, sourceDir, backupFilePath);
-        } catch (IOException e) {
+        } catch (IOException | SbkException e) {
             SimpleBackups.LOGGER.error("Failed to create backup", e);
         } finally {
             if (tempDir != null) {
@@ -104,18 +107,6 @@ public abstract class CompressionBase {
                     });
         } catch (IOException e) {
             SimpleBackups.LOGGER.warn("Failed to delete pre-copy temp directory: {}", tempDir, e);
-        }
-    }
-
-    protected static LZMA2Options createXzOptions() {
-        int lvl = CommonConfig.getCompressionLevel();
-        int preset = Math.clamp(lvl, 0, 9);
-        try {
-            LZMA2Options opt = new LZMA2Options();
-            opt.setPreset(preset);
-            return opt;
-        } catch (Exception e) {
-            return new LZMA2Options();
         }
     }
 
@@ -185,6 +176,11 @@ public abstract class CompressionBase {
                 return FileVisitResult.CONTINUE;
             }
 
+            if (CommonConfig.ignoreTempFiles() && TEMP_FILE_PATTERN.matcher(file.getFileName().toString()).matches()) {
+                SimpleBackups.LOGGER.debug("Skipping temporary file: {}", file);
+                return FileVisitResult.CONTINUE;
+            }
+
             if (this.ignoreSomething && this.shouldSkipFile(this.levelPath.relativize(file))) {
                 SimpleBackups.LOGGER.debug("Skipping file: {}", file);
                 return FileVisitResult.CONTINUE;
@@ -240,7 +236,8 @@ public abstract class CompressionBase {
 
     public enum BackupFormat {
         ZIP(".zip"),
-        ZSTD(".tar.zst");
+        ZSTD(".tar.zst"),
+        SBK(".sbk");
 
         private final String extension;
 

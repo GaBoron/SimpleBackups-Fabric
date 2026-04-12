@@ -13,6 +13,7 @@ import de.melanx.simplebackups.SimpleBackups;
 import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.merging.MergerBase;
+import de.melanx.simplebackups.merging.SbkMerger;
 import de.melanx.simplebackups.merging.ZipMerger;
 import de.melanx.simplebackups.merging.ZstdMerger;
 import net.minecraft.commands.CommandSourceStack;
@@ -55,6 +56,7 @@ public class MergeCommand implements Command<CommandSourceStack> {
                     MergerBase base = switch(chain.getFormat()) {
                         case ZIP -> new ZipMerger(chain, commandContext);
                         case ZSTD -> new ZstdMerger(chain, commandContext);
+                        case SBK -> new SbkMerger(chain, commandContext);
                     };
 
                     data.startMerging();

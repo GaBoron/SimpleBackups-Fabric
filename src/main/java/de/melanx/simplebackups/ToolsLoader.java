@@ -53,6 +53,10 @@ public class ToolsLoader {
         }
     }
 
+    public static boolean isLzmaAvailable() {
+        return ToolsLoader.isClassAvailable("org.tukaani.xz.XZ");
+    }
+
     public static boolean isZstdAvailable() {
         return ToolsLoader.isClassAvailable("com.github.luben.zstd.Zstd");
     }

@@ -3,6 +3,7 @@ package de.melanx.simplebackups.config;
 import de.melanx.simplebackups.StorageSize;
 import de.melanx.simplebackups.ToolsLoader;
 import de.melanx.simplebackups.compression.CompressionBase;
+import de.melanx.simplebackups.sbk.SbkAlgorithm;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import javax.annotation.Nullable;
@@ -40,6 +41,7 @@ public class CommonConfig {
     private static ModConfigSpec.ConfigValue<String> outputPath;
     private static ModConfigSpec.EnumValue<CompressionBase.BackupFormat> backupFormat;
     private static ModConfigSpec.BooleanValue preCopy;
+    private static ModConfigSpec.EnumValue<SbkAlgorithm> sbkAlgorithm;
     private static ModConfigSpec.BooleanValue noPlayerBackups;
     private static ModConfigSpec.IntValue noPlayerBackupCount;
     private static ModConfigSpec.IntValue noPlayerBackupTimer;
@@ -47,6 +49,7 @@ public class CommonConfig {
     private static ModConfigSpec.BooleanValue useTickCounter;
     private static ModConfigSpec.BooleanValue collectErrors;
     private static ModConfigSpec.BooleanValue deleteUnfinishedBackup;
+    private static ModConfigSpec.BooleanValue ignoreTempFiles;
     private static ModConfigSpec.ConfigValue<List<? extends String>> ignoredPaths;
     private static ModConfigSpec.ConfigValue<List<? extends String>> ignoredFiles;
     private static ModConfigSpec.ConfigValue<String> ignoredFilesRegex;
@@ -86,7 +89,7 @@ public class CommonConfig {
         outputPath = builder.comment("Used to define the output path.")
                 .define("outputPath", "simplebackups");
         backupFormat = builder.comment("Defines the backup format.",
-                        "If you choose ZSTD, you need to download the zstd-jni file and put it in " + ToolsLoader.RELATIVE_TOOLS_DIR,
+                        "If you choose ZSTD or SBK with ZSTD, you need to download the zstd-jni file and put it in " + ToolsLoader.RELATIVE_TOOLS_DIR,
                         "A direct download link is here: https://repo1.maven.org/maven2/com/github/luben/zstd-jni/1.5.7-7/zstd-jni-1.5.7-7.jar",
                         "DO NOT extract the jar file. For more information about this tool, visit its GitHub repo: https://github.com/luben/zstd-jni")
                 .defineEnum("backupFormat", CompressionBase.BackupFormat.ZIP);
@@ -99,6 +102,19 @@ public class CommonConfig {
                         "SSD write cycles, but risks inconsistent backups on large worlds and troubles with other formats than ZIP."
                 )
                 .define("preCopy", true);
+        sbkAlgorithm = builder
+                .comment(
+                        "Compression algorithm for SBK format archives.",
+                        "  LZMA2 - XZ/LZMA2 compression. Requires xz-java in external-dependencies.",
+                        "  ZSTD  - Zstandard compression. Requires zstd-jni in external-dependencies.",
+                        "          Faster compression and decompression, slightly larger archives.",
+                        "  xz-java download link:   https://repo1.maven.org/maven2/org/tukaani/xz/1.12/xz-1.12.jar",
+                        "          GitHub repo:     https://github.com/tukaani-project/xz-java",
+                        "  zstd-jni download link:  https://repo1.maven.org/maven2/com/github/luben/zstd-jni/1.5.7-7/zstd-jni-1.5.7-7.jar",
+                        "           GitHub repo:    https://github.com/luben/zstd-jni",
+                        "Has no effect when backupFormat is not SBK."
+                )
+                .defineEnum("sbkAlgorithm", ToolsLoader.isLzmaAvailable() ? SbkAlgorithm.LZMA2 : SbkAlgorithm.ZSTD);
         noPlayerBackups = builder.comment("Create backups, even if nobody is online")
                 .define("noPlayerBackups", false);
         noPlayerBackupCount = builder.comment("How many backups should be created after the last player left? Set to 0 to disable.")
@@ -123,6 +139,8 @@ public class CommonConfig {
         builder.comment("WARNING Please check your configuration before using permanently.",
                         "The backup system will ignore these paths and files.")
                 .push("to_ignore");
+        ignoreTempFiles = builder.comment("Automatically ignore temp files created by NeoForge, found with that pattern: \".+\\d{10}\\.neoforge-tmp$\"")
+                .define("ignore_temp_files", true);
         ignoredPaths = builder.comment("All directories that should be excluded from backups",
                         "Format: Enter paths relative to the world directory (e.g., 'logs', 'data/cache')",
                         "All files within these directories will also be excluded")
@@ -209,6 +227,10 @@ public class CommonConfig {
         return preCopy.get();
     }
 
+    public static SbkAlgorithm sbkAlgorithm() {
+        return sbkAlgorithm.get();
+    }
+
     public static boolean doNoPlayerBackups() {
         return noPlayerBackups.get();
     }
@@ -239,6 +261,10 @@ public class CommonConfig {
 
     public static boolean deleteUnfinishedBackup() {
         return deleteUnfinishedBackup.get();
+    }
+
+    public static boolean ignoreTempFiles() {
+        return ignoreTempFiles.get();
     }
 
     public static List<Path> getIgnoredPaths() {
