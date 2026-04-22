@@ -41,7 +41,11 @@ public class EventListener {
             EventListener.checkForTickCounterConfigUpdate(event.getLevel().getServer());
 
             boolean arePlayersOnline = !level.getServer().getPlayerList().getPlayers().isEmpty();
-            if (arePlayersOnline || this.doBackup || CommonConfig.doNoPlayerBackups()) {
+            if (!arePlayersOnline && CommonConfig.doNoPlayerBackups()) {
+                this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || BackupData.get(level).backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
+            }
+
+            if (arePlayersOnline || this.doBackup) {
                 BackupData backupData = BackupData.get(level);
                 this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || backupData.backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
 
