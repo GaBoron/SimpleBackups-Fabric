@@ -105,8 +105,8 @@ public class CommonConfig {
         sbkAlgorithm = builder
                 .comment(
                         "Compression algorithm for SBK format archives.",
-                        "  LZMA2 - XZ/LZMA2 compression. Requires xz-java in external-dependencies.",
-                        "  ZSTD  - Zstandard compression. Requires zstd-jni in external-dependencies.",
+                        "  LZMA2 - XZ/LZMA2 compression. Requires xz-java in external-dependencies (bundled in the -zstd build).",
+                        "  ZSTD  - Zstandard compression. Requires zstd-jni in external-dependencies (bundled in the -zstd build).",
                         "          Faster compression and decompression, slightly larger archives.",
                         "  xz-java download link:   https://repo1.maven.org/maven2/org/tukaani/xz/1.12/xz-1.12.jar",
                         "          GitHub repo:     https://github.com/tukaani-project/xz-java",

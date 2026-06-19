@@ -1,10 +1,6 @@
 package de.melanx.simplebackups.sbk;
 
 import de.melanx.simplebackups.ToolsLoader;
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.UnsupportedOptionsException;
-import org.tukaani.xz.XZInputStream;
-import org.tukaani.xz.XZOutputStream;
 
 import java.io.*;
 
@@ -13,7 +9,7 @@ import java.io.*;
  *
  * <h2>Algorithm selection</h2>
  * <ul>
- *   <li>{@link SbkAlgorithm#LZMA2}: uses {@link XZOutputStream}/{@link XZInputStream}
+ *   <li>{@link SbkAlgorithm#LZMA2}: uses {@code XZOutputStream}/{@code XZInputStream}
  *       loaded via {@link ToolsLoader} at runtime.
  *       If xz-java is not present, throws {@link SbkException}.</li>
  *   <li>{@link SbkAlgorithm#ZSTD}: uses {@code ZstdOutputStream}
@@ -76,15 +72,8 @@ public final class SbkFrameCompressor {
                             "Download it and place it in the external-dependencies directory.");
         }
 
-        LZMA2Options opts = new LZMA2Options();
-        try {
-            opts.setPreset(Math.clamp(level, 0, 9));
-        } catch (UnsupportedOptionsException e) {
-            // use default preset
-        }
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (XZOutputStream xz = new XZOutputStream(outputStream, opts)) {
+        try (OutputStream xz = ToolsLoader.wrapWithXz(outputStream, level)) {
             xz.write(data);
         }
 
@@ -101,7 +90,7 @@ public final class SbkFrameCompressor {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buf = new byte[65536];
         long total = 0;
-        try (XZInputStream xz = new XZInputStream(new ByteArrayInputStream(compressed))) {
+        try (InputStream xz = ToolsLoader.wrapXzInput(new ByteArrayInputStream(compressed))) {
             int read;
             while ((read = xz.read(buf)) >= 0) {
                 total += read;
