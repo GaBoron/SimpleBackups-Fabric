@@ -1,5 +1,5 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.1.2'
+    id 'org.moddingx.modgradle.meta' version '5.1.4'
 }
 
 repositories {
@@ -18,7 +18,7 @@ repositories {
 
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'beta'
-var baseVersion = '26.1'
+var baseVersion = '26.2'
 var cherishedWorldsVersion = 'bK316SkZ' // 13.0.1+1.21.8
 
 mod.configure {
@@ -34,7 +34,7 @@ mod.configure {
         }
     }
 
-    neoforge "${baseVersion}.0.1-beta"
+    neoforge "${baseVersion}.0.7-beta"
 
     license 'The Apache License, Version 2.0'
     github 'ChaoticTrials/SimpleBackups'
@@ -69,9 +69,7 @@ mod.configure {
     upload {
         all {
             type releaseType
-            version '26.1'
-            version '26.1.1'
-            version '26.1.2'
+            version '26.2'
             optional 'cherished-worlds'
         }
         curseforge {
@@ -94,7 +92,7 @@ tasks.named('jarJar') {
 }
 
 dependencies {
-    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
+    compileOnly "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
 
     implementation(jarJar('org.tukaani:xz:1.12'))
     implementation(jarJar('com.github.luben:zstd-jni:1.5.7-7'))
