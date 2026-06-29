@@ -19,7 +19,7 @@ repositories {
 var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
 var releaseType = 'beta'
 var baseVersion = '26.1'
-var cherishedWorldsVersion = 'Fik98aS8' // 13.0.1+1.21.8
+var cherishedWorldsVersion = 'bK316SkZ' // 13.0.1+1.21.8
 
 mod.configure {
     modid 'simplebackups'
@@ -94,7 +94,7 @@ tasks.named('jarJar') {
 }
 
 dependencies {
-    compileOnly "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
+    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
 
     implementation(jarJar('org.tukaani:xz:1.12'))
     implementation(jarJar('com.github.luben:zstd-jni:1.5.7-7'))
