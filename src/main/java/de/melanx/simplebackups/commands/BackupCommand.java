@@ -2,6 +2,7 @@ package de.melanx.simplebackups.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import de.melanx.simplebackups.BackupThread;
@@ -9,8 +10,10 @@ import de.melanx.simplebackups.compression.CompressionBase;
 import de.melanx.simplebackups.config.CommonConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.neoforge.server.command.EnumArgument;
+
+import java.util.stream.Stream;
 
 public class BackupCommand implements Command<CommandSourceStack> {
 
@@ -20,7 +23,9 @@ public class BackupCommand implements Command<CommandSourceStack> {
                         .executes(new BackupCommand())
                         .then(Commands.argument("quiet", BoolArgumentType.bool())
                                 .executes(new BackupCommand())
-                                .then(Commands.argument("format", EnumArgument.enumArgument(CompressionBase.BackupFormat.class))
+                                .then(Commands.argument("format", StringArgumentType.word())
+                                        .suggests((_, builder) -> SharedSuggestionProvider.suggest(
+                                                Stream.of(CompressionBase.BackupFormat.values()).map(Enum::name), builder))
                                         .executes(new BackupCommand()))
                         )
                 );
@@ -36,7 +41,7 @@ public class BackupCommand implements Command<CommandSourceStack> {
             // do nothing
         }
         try {
-            format = context.getArgument("format", CompressionBase.BackupFormat.class);
+            format = CompressionBase.BackupFormat.valueOf(StringArgumentType.getString(context, "format"));
         } catch (IllegalArgumentException e) {
             format = CommonConfig.getBackupFormat();
         }
