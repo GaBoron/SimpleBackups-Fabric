@@ -152,8 +152,8 @@ jobs:
             git push origin "refs/tags/$v"
           fi
 
-      # (5) Always print the changelog so it's available for a manual upload if a store
-      #     failed. Mirrors ModGradle's line format and my [meta] filter.
+      # Always print the changelog so it's available for a manual upload if a store
+      # failed. Mirrors ModGradle's line format and my [meta] filter.
       - name: Print changelog
         if: always() && needs.check.outputs.prev_commit != ''
         run: |
