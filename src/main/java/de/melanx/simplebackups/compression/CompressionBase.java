@@ -7,6 +7,7 @@ import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.sbk.SbkException;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 
 import javax.annotation.Nonnull;
@@ -21,7 +22,9 @@ import java.util.regex.Pattern;
 
 public abstract class CompressionBase {
 
-    private static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".+\\d{10}\\.neoforge-tmp$");   // NeoForge copy - net.neoforged.neoforge.common.IOUtilities
+    // Keep the upstream timestamped safe-write convention loader-neutral. The pattern still
+    // recognizes files left by NeoForge worlds that are later opened by this Fabric port.
+    private static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".+\\d{10}\\.[a-z0-9_-]+-tmp$");
     public static final long BACKUP_BUFFER_SIZE = 128L * 1024 * 1024; // 128 MB
     protected final List<Path> errors = new ArrayList<>();
     protected final FileStore fileStore;
@@ -53,7 +56,7 @@ public abstract class CompressionBase {
         };
 
         Path levelName = Paths.get(storageAccess.getLevelId());
-        Path levelPath = storageAccess.getWorldDir().resolve(storageAccess.getLevelId()).toRealPath();
+        Path levelPath = server.getWorldPath(LevelResource.ROOT).toRealPath();
 
         Path sourceDir = levelPath;
         Path tempDir = null;

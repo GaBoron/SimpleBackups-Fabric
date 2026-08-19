@@ -1,89 +1,81 @@
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.1.2'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
 }
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
+    maven {
+        name = 'Fuzs Mod Resources'
+        url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+        content {
+            includeGroup 'fuzs.forgeconfigapiport'
         }
     }
 }
 
-var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
-var releaseType = 'beta'
-var baseVersion = '26.1'
-var cherishedWorldsVersion = 'bK316SkZ' // 13.0.1+1.21.8
+loom {
+    splitEnvironmentSourceSets()
 
-mod.configure {
-    modid 'simplebackups'
-    group 'de.melanx'
-    versioning {
-        if (dev) {
-            def gitCommitHash = ['git', 'rev-parse', 'HEAD'].execute().text.trim()
-            constant baseVersion + '.999' + (gitCommitHash ? "-${gitCommitHash}" : '')
-        } else {
-            base baseVersion
-            maven 'https://maven.melanx.de/release'
+    mods {
+        simplebackups {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
         }
     }
 
-    neoforge "${baseVersion}.0.1-beta"
+    accessWidenerPath = file('src/main/resources/simplebackups.accesswidener')
+}
 
-    license 'The Apache License, Version 2.0'
-    github 'ChaoticTrials/SimpleBackups'
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-    artifacts {
-        sources {
-            publishToRepositories()
-        }
-        extra('jarJar') {
-            classifier 'zstd'
-            publishToRepositories()
-            uploadToModHostingSites()
-        }
-    }
+    implementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
 
-    changelog {
-        def lines = defaultChangelog.toString().split('\n')
-        def filteredChangelog = lines.findAll { !it.startsWith('- [[meta]') }.join('\n')
+    // Minecraft exposes this to compilation, but not to Fabric's game classloader.
+    // ZSTD archives and their merger use its TAR streams at runtime.
+    include implementation('org.apache.commons:commons-compress:1.28.0')
+    include implementation('org.tukaani:xz:1.12')
+    include implementation('com.github.luben:zstd-jni:1.5.7-7')
+}
 
-        return filteredChangelog
-    }
+processResources {
+    inputs.property 'version', project.version
 
-
-    publishing {
-        maven {
-            name 'melanx'
-            url 'https://maven.melanx.de/release'
-            credentials(PasswordCredentials)
-        }
-    }
-
-    upload {
-        all {
-            type releaseType
-            version '26.1'
-            version '26.1.1'
-            version '26.1.2'
-            optional 'cherished-worlds'
-        }
-        curseforge {
-            projectId 583228
-        }
-        modrinth {
-            projectId 'fzSKSXVK'
-        }
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
     }
 }
 
-tasks.named('jarJar') {
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+
+    from('NOTICE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+
     from('licenses/zstd-jni.txt') {
         into('META-INF/LICENSES')
     }
@@ -93,9 +85,11 @@ tasks.named('jarJar') {
     }
 }
 
-dependencies {
-    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
-
-    implementation(jarJar('org.tukaani:xz:1.12'))
-    implementation(jarJar('com.github.luben:zstd-jni:1.5.7-7'))
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
 }

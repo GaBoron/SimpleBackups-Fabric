@@ -1,0 +1,4 @@
+accessWidener v2 official
+
+accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
+accessible method net/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess checkLock ()V

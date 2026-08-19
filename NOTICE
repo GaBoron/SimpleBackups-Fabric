@@ -1,0 +1,12 @@
+SimpleBackups Fabric Port
+Copyright (c) the original SimpleBackups authors and contributors.
+
+This project is an unofficial, community-maintained Fabric port of SimpleBackups:
+https://github.com/ChaoticTrials/SimpleBackups
+
+The original SimpleBackups source, copyright notices, attribution, and Apache
+License 2.0 remain applicable. Fabric-specific port changes are distributed
+under the same Apache License 2.0.
+
+Bundled third-party components retain their own licenses. See the license texts
+under licenses/ in the source tree and META-INF/LICENSES/ in built artifacts.

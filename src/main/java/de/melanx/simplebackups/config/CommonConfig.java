@@ -89,9 +89,8 @@ public class CommonConfig {
         outputPath = builder.comment("Used to define the output path.")
                 .define("outputPath", "simplebackups");
         backupFormat = builder.comment("Defines the backup format.",
-                        "If you choose ZSTD or SBK with ZSTD, you need to download the zstd-jni file and put it in " + ToolsLoader.RELATIVE_TOOLS_DIR,
-                        "A direct download link is here: https://repo1.maven.org/maven2/com/github/luben/zstd-jni/1.5.7-7/zstd-jni-1.5.7-7.jar",
-                        "DO NOT extract the jar file. For more information about this tool, visit its GitHub repo: https://github.com/luben/zstd-jni")
+                        "The Fabric port bundles zstd-jni. Custom builds without it can place the jar in " + ToolsLoader.RELATIVE_TOOLS_DIR,
+                        "For more information about this tool, visit its GitHub repo: https://github.com/luben/zstd-jni")
                 .defineEnum("backupFormat", CompressionBase.BackupFormat.ZIP);
         preCopy = builder
                 .comment(
@@ -105,8 +104,8 @@ public class CommonConfig {
         sbkAlgorithm = builder
                 .comment(
                         "Compression algorithm for SBK format archives.",
-                        "  LZMA2 - XZ/LZMA2 compression. Requires xz-java in external-dependencies (bundled in the -zstd build).",
-                        "  ZSTD  - Zstandard compression. Requires zstd-jni in external-dependencies (bundled in the -zstd build).",
+                        "  LZMA2 - XZ/LZMA2 compression. xz-java is bundled by the Fabric port.",
+                        "  ZSTD  - Zstandard compression. zstd-jni is bundled by the Fabric port.",
                         "          Faster compression and decompression, slightly larger archives.",
                         "  xz-java download link:   https://repo1.maven.org/maven2/org/tukaani/xz/1.12/xz-1.12.jar",
                         "          GitHub repo:     https://github.com/tukaani-project/xz-java",
@@ -139,7 +138,7 @@ public class CommonConfig {
         builder.comment("WARNING Please check your configuration before using permanently.",
                         "The backup system will ignore these paths and files.")
                 .push("to_ignore");
-        ignoreTempFiles = builder.comment("Automatically ignore temp files created by NeoForge, found with that pattern: \".+\\d{10}\\.neoforge-tmp$\"")
+        ignoreTempFiles = builder.comment("Automatically ignore timestamped temporary files created by loader or game safe-write operations.")
                 .define("ignore_temp_files", true);
         ignoredPaths = builder.comment("All directories that should be excluded from backups",
                         "Format: Enter paths relative to the world directory (e.g., 'logs', 'data/cache')",
