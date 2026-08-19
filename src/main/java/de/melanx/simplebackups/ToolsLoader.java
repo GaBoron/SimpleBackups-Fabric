@@ -1,6 +1,6 @@
 package de.melanx.simplebackups;
 
-import net.neoforged.fml.loading.FMLPaths;
+import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +18,14 @@ import java.util.stream.Stream;
 
 public class ToolsLoader {
 
-    private static final Path TOOLS_DIR = FMLPaths.CONFIGDIR.get().resolve(SimpleBackups.MODID).resolve("external-dependencies");
-    public static final Path RELATIVE_TOOLS_DIR = FMLPaths.GAMEDIR.get().relativize(TOOLS_DIR);
+    private static final Path GAME_DIR = FabricLoader.getInstance().getGameDir().toAbsolutePath().normalize();
+    private static final Path TOOLS_DIR = FabricLoader.getInstance().getConfigDir().toAbsolutePath().normalize()
+            .resolve(SimpleBackups.MODID).resolve("external-dependencies");
+    public static final Path RELATIVE_TOOLS_DIR = GAME_DIR.relativize(TOOLS_DIR);
     private static final Logger LOGGER = LoggerFactory.getLogger(ToolsLoader.class);
-    // Defaults to the mod's own classloader so libraries bundled via JarJar (the -zstd build
-    // variant) are still found when external-dependencies provides nothing. Replaced with a
-    // URLClassLoader (parented to this same classloader) only when external jars are present.
+    // Defaults to the mod's own classloader so Fabric nested libraries are found when
+    // external-dependencies provides nothing. Replaced with a URLClassLoader (parented to
+    // this same classloader) only when external jars are present.
     private static ClassLoader classLoader = ToolsLoader.class.getClassLoader();
 
     public static void init() {
