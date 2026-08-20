@@ -16,7 +16,7 @@ Choose the JAR that exactly matches your Minecraft version.
 | Minecraft | SimpleBackups Fabric | Download | Source branch |
 | --- | --- | --- | --- |
 | 26.2 | 26.2.1 | [Download JAR](artifacts/26.2/simplebackups-fabric-26.2.1.jar) | [`fabric/26.2`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.2) |
-| 26.1–26.1.2 | 26.1.5 | [Download JAR](artifacts/26.1/simplebackups-fabric-26.1.5.jar) | [`fabric/26.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1) |
+| 26.1–26.1.2 | 26.1.5 | [Download JAR](artifacts/26.1/simplebackups-fabric-26.1.5.jar) | `fabric/26.1` (not published yet) |
 | 1.21.11 | 21.11.6 | [Download JAR](artifacts/1.21.11/simplebackups-fabric-21.11.6.jar) | [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x) |
 
 Each source branch starts from the matching upstream SimpleBackups branch and
