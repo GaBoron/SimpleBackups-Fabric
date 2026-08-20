@@ -1,6 +1,8 @@
 # Simple Backups Fabric
 
-![Simple Backups Fabric icon](src/main/resources/assets/simplebackups/icon.png)
+<p align="center">
+  <img src="src/main/resources/assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
+</p>
 
 An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups), the scheduled
