@@ -2,4 +2,8 @@
 /AGENTS.md
 /.agents/
 /.codex/
+/docs/MIGRATION_*.md
+/docs/PORTING_PLAYBOOK.md
 /docs/PUBLISHING.md
+/docs/UPSTREAM_SYNC.md
+/docs/VERSION_MATRIX.md
