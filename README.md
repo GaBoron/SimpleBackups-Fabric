@@ -1,5 +1,7 @@
 # SimpleBackups for Fabric
 
+**English** · [Deutsch](README.de-DE.md) · [日本語](README.ja-JP.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru-RU.md) · [Türkçe](README.tr-TR.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
+
 An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups). It preserves
 the scheduled and on-demand world-backup behavior of the corresponding upstream
