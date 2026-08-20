@@ -2,7 +2,9 @@
 
 [English](README.md) · [Deutsch](README.de-DE.md) · [日本語](README.ja-JP.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru-RU.md) · [Türkçe](README.tr-TR.md) · **简体中文** · [繁體中文](README.zh-TW.md)
 
-<img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
+<p align="center">
+  <img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
+</p>
 
 这是 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups) 的非官方、
 由社区维护的 Fabric 移植版。项目在保留对应上游版本的定时和手动世界备份行为

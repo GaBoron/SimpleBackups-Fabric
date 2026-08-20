@@ -2,7 +2,9 @@
 
 [English](README.md) · [Deutsch](README.de-DE.md) · [日本語](README.ja-JP.md) · [Português (Brasil)](README.pt-BR.md) · **Русский** · [Türkçe](README.tr-TR.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
 
-<img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
+<p align="center">
+  <img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
+</p>
 
 Неофициальный, поддерживаемый сообществом порт
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups) для Fabric. Он
