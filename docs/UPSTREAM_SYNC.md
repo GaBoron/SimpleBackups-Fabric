@@ -23,3 +23,6 @@ An upstream update should be a sync, not a fresh rewrite.
 
 See [the Fabric porting playbook](PORTING_PLAYBOOK.md) for the platform map and
 validation sequence.
+
+Before distributing a synchronized build, follow the
+[licensing and Modrinth publication policy](PUBLISHING.md).
