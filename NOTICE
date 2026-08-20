@@ -1,5 +1,5 @@
-SimpleBackups for Fabric
-Copyright 2026 SimpleBackups Fabric Port contributors
+Simple Backups Fabric
+Copyright 2026 Simple Backups Fabric contributors
 
 This product is an unofficial, community-maintained Fabric port of SimpleBackups.
 
@@ -9,3 +9,10 @@ https://github.com/ChaoticTrials/SimpleBackups
 Original SimpleBackups copyright and authorship remain with the upstream
 contributors, including MelanX. This port retains the upstream Apache License,
 Version 2.0. It is not endorsed or supported by the upstream project.
+
+Files adapted from upstream SimpleBackups carry a modification notice stating
+that they were changed for the Simple Backups Fabric project in 2026.
+
+The Simple Backups Fabric icon is derived from the upstream SimpleBackups icon
+and incorporates the Fabric logo from https://fabricmc.net/. Fabric website
+source assets are distributed under the MIT License.

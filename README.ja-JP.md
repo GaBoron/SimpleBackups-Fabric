@@ -1,6 +1,8 @@
-# SimpleBackups for Fabric
+# Simple Backups Fabric
 
 [English](README.md) · [Deutsch](README.de-DE.md) · **日本語** · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru-RU.md) · [Türkçe](README.tr-TR.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
+
+<img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
 
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups) の非公式な
 コミュニティ管理 Fabric 移植版です。対応する上流バージョンの自動および

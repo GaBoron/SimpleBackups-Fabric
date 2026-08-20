@@ -1,6 +1,8 @@
-# SimpleBackups für Fabric
+# Simple Backups Fabric
 
 [English](README.md) · **Deutsch** · [日本語](README.ja-JP.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru-RU.md) · [Türkçe](README.tr-TR.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
+
+<img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
 
 Ein inoffizieller, von der Community gepflegter Fabric-Port von
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups). Er bewahrt das

@@ -1,6 +1,8 @@
-# SimpleBackups for Fabric
+# Simple Backups Fabric
 
 **English** · [Deutsch](README.de-DE.md) · [日本語](README.ja-JP.md) · [Português (Brasil)](README.pt-BR.md) · [Русский](README.ru-RU.md) · [Türkçe](README.tr-TR.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
+
+<img src="assets/simplebackups/icon.png" alt="Simple Backups Fabric icon" width="160">
 
 An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups). It preserves
@@ -55,4 +57,5 @@ matching upstream source.
 
 SimpleBackups was created by the upstream project and contributors. This Fabric
 port retains the upstream Apache License 2.0 and attribution; see [LICENSE](LICENSE)
-and [NOTICE](NOTICE).
+and [NOTICE](NOTICE). Maintainer requirements for derivative source files and
+Modrinth releases are recorded in [the publication policy](docs/PUBLISHING.md).
