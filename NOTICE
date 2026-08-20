@@ -1,4 +1,4 @@
-SimpleBackups Fabric Port
+Simple Backups Fabric
 Copyright (c) the original SimpleBackups authors and contributors.
 
 This project is an unofficial, community-maintained Fabric port of SimpleBackups:
@@ -10,3 +10,10 @@ under the same Apache License 2.0.
 
 Bundled third-party components retain their own licenses. See the license texts
 under licenses/ in the source tree and META-INF/LICENSES/ in built artifacts.
+
+Files adapted from upstream SimpleBackups carry a modification notice stating
+that they were changed for the Simple Backups Fabric project in 2026.
+
+The Simple Backups Fabric icon is derived from the upstream SimpleBackups icon
+and incorporates the Fabric logo from https://fabricmc.net/. Fabric website
+source assets are distributed under the MIT License.

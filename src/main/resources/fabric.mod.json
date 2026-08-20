@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "id": "simplebackups",
   "version": "${version}",
-  "name": "Simple Backups (Unofficial Fabric Port)",
-  "description": "A complete, community-maintained Fabric port of SimpleBackups.",
+  "name": "Simple Backups Fabric",
+  "description": "An unofficial, community-maintained Fabric port of SimpleBackups.",
   "authors": [
     "MelanX",
-    "SimpleBackups Fabric Port contributors"
+    "Simple Backups Fabric contributors"
   ],
   "contact": {
     "homepage": "https://github.com/GaBoron/SimpleBackups-Fabric",
@@ -14,6 +14,7 @@
     "issues": "https://github.com/GaBoron/SimpleBackups-Fabric/issues"
   },
   "license": "Apache-2.0",
+  "icon": "assets/simplebackups/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [

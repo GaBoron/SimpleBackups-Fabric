@@ -1,4 +1,6 @@
-# SimpleBackups for Fabric
+# Simple Backups Fabric
+
+![Simple Backups Fabric icon](src/main/resources/assets/simplebackups/icon.png)
 
 An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups), the scheduled
