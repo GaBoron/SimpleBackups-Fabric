@@ -41,3 +41,6 @@ An upstream update should be a sync, not a fresh rewrite.
 
 Only after all applicable checks pass should a line move from Planned or WIP to
 Complete in the matrix.
+
+Before distributing a synchronized build, follow the
+[licensing and Modrinth publication policy](PUBLISHING.md).

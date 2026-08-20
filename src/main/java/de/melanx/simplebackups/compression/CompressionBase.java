@@ -1,3 +1,7 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups.compression;
 
 import de.melanx.simplebackups.BackupResult;
