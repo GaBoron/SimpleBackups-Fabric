@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "simplebackups",
+  "version": "${version}",
+  "name": "Simple Backups (Unofficial Fabric Port)",
+  "description": "A complete, community-maintained Fabric port of SimpleBackups.",
+  "authors": [
+    "MelanX",
+    "SimpleBackups Fabric Port contributors"
+  ],
+  "contact": {
+    "homepage": "https://github.com/GaBoron/SimpleBackups-Fabric",
+    "sources": "https://github.com/GaBoron/SimpleBackups-Fabric",
+    "issues": "https://github.com/GaBoron/SimpleBackups-Fabric/issues"
+  },
+  "license": "Apache-2.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.melanx.simplebackups.SimpleBackups"
+    ],
+    "client": [
+      "de.melanx.simplebackups.client.ClientInit"
+    ]
+  },
+  "accessWidener": "simplebackups.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": ">=0.141.6+1.21.11",
+    "forgeconfigapiport": ">=21.11.1"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "cherishedworlds": "*",
+    "mc2discord": "*"
+  }
+}

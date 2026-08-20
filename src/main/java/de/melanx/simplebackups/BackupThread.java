@@ -7,6 +7,8 @@ import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
 import de.melanx.simplebackups.network.Pause;
+import de.melanx.simplebackups.platform.ServerTranslations;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.network.chat.Component;
@@ -16,9 +18,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.neoforged.fml.i18n.FMLTranslations;
-import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,8 +267,7 @@ public class BackupThread extends Thread {
     }
 
     private void broadcast(String message, Style style, Object... parameters) {
-        //noinspection UnstableApiUsage,StringConcatenationArgumentToLogCall
-        SimpleBackups.LOGGER.info(String.format(FMLTranslations.getPattern(message, () -> message), parameters));
+        SimpleBackups.LOGGER.info(ServerTranslations.format(message, parameters));
         if (CommonConfig.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
@@ -285,14 +285,12 @@ public class BackupThread extends Thread {
 
     public static MutableComponent component(@Nullable ServerPlayer player, String key, Object... parameters) {
         if (player != null) {
-            //noinspection UnstableApiUsage
-            if (NetworkRegistry.hasChannel(player.connection.connection, null, Pause.ID)) {
+            if (ServerPlayNetworking.canSend(player, Pause.TYPE)) {
                 return Component.translatable(key, parameters);
             }
         }
 
-        //noinspection UnstableApiUsage
-        return Component.literal(String.format(FMLTranslations.getPattern(key, () -> key), parameters));
+        return Component.literal(ServerTranslations.format(key, parameters));
     }
 
     // vanilla copy with modifications
@@ -307,7 +305,7 @@ public class BackupThread extends Thread {
         try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)))) {
             zipStream.setLevel(CommonConfig.getCompressionLevel());
             Path levelName = Paths.get(this.storageSource.getLevelId());
-            Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.getLevelId()).toRealPath();
+            Path levelPath = this.server.getWorldPath(LevelResource.ROOT).toRealPath();
 
             List<Path> ignoredPaths = CommonConfig.getIgnoredPaths();
             List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();

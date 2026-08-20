@@ -1,5 +1,8 @@
 package de.melanx.simplebackups.client;
 
+import de.melanx.simplebackups.SimpleBackups;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -7,9 +10,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 public class ClientEventHandler {
 
@@ -24,12 +24,15 @@ public class ClientEventHandler {
         return isPaused;
     }
 
-    @SubscribeEvent
-    public void onRenderText(RegisterGuiLayersEvent event) {
-        event.registerBelow(VanillaGuiLayers.HOTBAR, Identifier.fromNamespaceAndPath("simplebackups", "pause"), this::renderText);
+    public static void register() {
+        HudElementRegistry.attachElementBefore(
+                VanillaHudElements.HOTBAR,
+                Identifier.fromNamespaceAndPath(SimpleBackups.MODID, "pause"),
+                ClientEventHandler::renderText
+        );
     }
 
-    private void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    private static void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (!isPaused) {
             return;
         }

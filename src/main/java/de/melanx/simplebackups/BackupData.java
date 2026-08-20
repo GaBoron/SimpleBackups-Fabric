@@ -28,7 +28,14 @@ public class BackupData extends SavedData {
             .apply(instance, BackupData::new));
 
     public static SavedDataType<BackupData> type() {
-        return new SavedDataType<>("simplebackups", context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0), context -> CODEC);
+        // This mod-owned schema is not handled by Mojang's data fixer. Fabric uses the
+        // vanilla four-argument constructor instead of NeoForge's context convenience API.
+        return new SavedDataType<>(
+                "simplebackups",
+                () -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0),
+                CODEC,
+                null
+        );
     }
 
     private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter, int backupsSinceLastPlayerJoined) {
