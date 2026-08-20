@@ -29,3 +29,9 @@ forge*changelog.txt
 # CoreMods
 *.d.ts
 **/tsconfig.json
+
+# Local agent data and private maintenance notes
+/AGENTS.md
+/.agents/
+/.codex/
+/docs/PUBLISHING.md
