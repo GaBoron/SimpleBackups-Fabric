@@ -1,85 +1,98 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 plugins {
-    id 'org.moddingx.modgradle.meta' version '5.1.1'
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
 }
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
+    maven {
+        name = 'Fuzs Mod Resources'
+        url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+        content {
+            includeGroup 'fuzs.forgeconfigapiport'
         }
     }
 }
 
-var dev = System.getenv('IS_DEV')?.toBoolean() ?: false
-var releaseType = 'beta'
-var baseVersion = '21.1'
-var modBaseVersion = '1.21-4.0'
-var cherishedWorldsVersion = 'o5lwJaRU' // 10.1.1+1.21.1
+loom {
+    splitEnvironmentSourceSets()
 
-mod.configure {
-    modid 'simplebackups'
-    group 'de.melanx'
-    versioning {
-        if (dev) {
-            def gitCommitHash = ['git', 'rev-parse', 'HEAD'].execute().text.trim()
-            constant modBaseVersion + '.999' + (gitCommitHash ? "-${gitCommitHash}" : '')
-        } else {
-            base modBaseVersion
-            maven 'https://maven.melanx.de/release'
+    runs {
+        client {
+            client()
+            runDir 'run-1.21.1-client'
+        }
+
+        server {
+            server()
+            runDir 'run-1.21.1-server'
         }
     }
 
-    neoforge "${baseVersion}.115"
-
-    license 'The Apache License, Version 2.0'
-    github 'ChaoticTrials/SimpleBackups'
-
-    artifacts {
-        sources {
-            publishToRepositories()
+    mods {
+        simplebackups {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
         }
     }
 
-    changelog {
-        def lines = defaultChangelog.toString().split('\n')
-        def filteredChangelog = lines.findAll { !it.startsWith('- [[meta]') }.join('\n')
-
-        return filteredChangelog
-    }
-
-
-    publishing {
-        maven {
-            name 'melanx'
-            url 'https://maven.melanx.de/release'
-            credentials(PasswordCredentials)
-        }
-    }
-
-    upload {
-        all {
-            type releaseType
-            version '1.21.1'
-            version '1.21.2'
-            version '1.21.3'
-            version '1.21.4'
-            optional 'cherished-worlds'
-        }
-        curseforge {
-            projectId 583228
-        }
-        modrinth {
-            projectId 'fzSKSXVK'
-        }
-    }
+    accessWidenerPath = file('src/main/resources/simplebackups.accesswidener')
 }
 
 dependencies {
-    implementation "maven.modrinth:cherished-worlds:${cherishedWorldsVersion}"
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+
+    from('NOTICE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
 }

@@ -1,13 +1,16 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 public class ClientEventHandler {
 
@@ -22,17 +25,13 @@ public class ClientEventHandler {
         return isPaused;
     }
 
-    @SubscribeEvent
-    public void onRenderText(RenderGuiEvent.Post event) {
-        if (!isPaused) {
-            return;
-        }
+    public static void register() {
+        HudRenderCallback.EVENT.register(ClientEventHandler::renderText);
+    }
 
-        GuiGraphics guiGraphics = event.getGuiGraphics();
-        guiGraphics.fill(3, 3, 20, 20, 0);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, 0);
-        RenderSystem.disableBlend();
+    private static void renderText(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        if (isPaused) {
+            guiGraphics.drawString(Minecraft.getInstance().font, COMPONENT, 3, 3, -1, true);
+        }
     }
 }

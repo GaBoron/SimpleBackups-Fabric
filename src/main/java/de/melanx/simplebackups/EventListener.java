@@ -1,3 +1,7 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
 import de.melanx.simplebackups.commands.BackupCommand;
@@ -6,41 +10,45 @@ import de.melanx.simplebackups.commands.PauseCommand;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.network.Pause;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.registration.NetworkRegistry;
 
 public class EventListener {
 
     private boolean doBackup;
 
-    @SubscribeEvent
-    public void registerCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal(SimpleBackups.MODID)
+    public static void register() {
+        EventListener listener = new EventListener();
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> listener.registerCommands(dispatcher));
+        ServerTickEvents.END_SERVER_TICK.register(listener::onServerTick);
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> listener.onPlayerConnect(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> listener.onPlayerDisconnect(handler.player));
+    }
+
+    private void registerCommands(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal(SimpleBackups.MODID)
                 .requires(stack -> ServerConfig.commandsCheatsDisabled() || stack.hasPermission(2))
                 .then(BackupCommand.register())
                 .then(PauseCommand.register())
                 .then(MergeCommand.register()));
     }
 
-    @SubscribeEvent
-    public void onServerTick(LevelTickEvent.Post event) {
+    private void onServerTick(MinecraftServer server) {
         if (CommonConfig.backupsDisabledByJvmArg()) {
             return;
         }
 
-        if (event.getLevel() instanceof ServerLevel level && !level.isClientSide
-                && level.getGameTime() % 20 == 0 && level == level.getServer().overworld()) {
-            EventListener.checkForTickCounterConfigUpdate(event.getLevel().getServer());
+        ServerLevel level = server.overworld();
+        if (level.getGameTime() % 20 == 0) {
+            EventListener.checkForTickCounterConfigUpdate(server);
 
-            boolean arePlayersOnline = !level.getServer().getPlayerList().getPlayers().isEmpty();
+            boolean arePlayersOnline = !server.getPlayerList().getPlayers().isEmpty();
             if (!arePlayersOnline && CommonConfig.doNoPlayerBackups()) {
                 this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || BackupData.get(level).backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
             }
@@ -49,7 +57,7 @@ public class EventListener {
                 BackupData backupData = BackupData.get(level);
                 this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || backupData.backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
 
-                boolean done = BackupThread.tryCreateBackup(level.getServer());
+                boolean done = BackupThread.tryCreateBackup(server);
                 if (done) {
                     SimpleBackups.LOGGER.info("Backup done.");
                     if (!arePlayersOnline) {
@@ -60,23 +68,18 @@ public class EventListener {
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
-        ServerPlayer player = (ServerPlayer) event.getEntity();
+    private void onPlayerConnect(ServerPlayer player) {
         BackupData.get(player.serverLevel()).resetBackupsSinceLastPlayerJoined();
-        //noinspection UnstableApiUsage
-        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && event.getEntity().getServer() != null && NetworkRegistry.hasChannel(player.connection.connection, null, Pause.ID)) {
-            PacketDistributor.sendToPlayer(player, new Pause(BackupData.get(event.getEntity().getServer()).isPaused()));
+        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && ServerPlayNetworking.canSend(player, Pause.TYPE)) {
+            ServerPlayNetworking.send(player, new Pause(BackupData.get(player.serverLevel().getServer()).isPaused()));
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            //noinspection ConstantConditions
-            if (player.getServer().getPlayerList().getPlayers().isEmpty()) {
-                this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || BackupData.get(player.serverLevel()).backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
-            }
+    private void onPlayerDisconnect(ServerPlayer player) {
+        MinecraftServer server = player.serverLevel().getServer();
+        boolean noOtherPlayers = server.getPlayerList().getPlayers().stream().noneMatch(other -> other != player);
+        if (noOtherPlayers) {
+            this.doBackup = !(CommonConfig.noPlayerBackupCount() == 0 || BackupData.get(player.serverLevel()).backupsSinceLastPlayerJoined() >= CommonConfig.noPlayerBackupCount());
         }
     }
 

@@ -1,56 +1,37 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
-import de.melanx.simplebackups.client.ClientInit;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ExperimentalConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.network.Pause;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Mod(SimpleBackups.MODID)
-public class SimpleBackups {
+public class SimpleBackups implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SimpleBackups.class);
     public static final String MODID = "simplebackups";
 
-    public SimpleBackups(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
-        modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.CONFIG);
-        modContainer.registerConfig(ModConfig.Type.COMMON, ExperimentalConfig.CONFIG, "simplebackups-common-experimental.toml");
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.CONFIG);
-        NeoForge.EVENT_BUS.register(new EventListener());
-        modEventBus.addListener(this::setup);
-        modEventBus.addListener(this::onRegisterPayloadHandler);
+    @Override
+    public void onInitialize() {
+        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.COMMON, CommonConfig.CONFIG);
+        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.COMMON, ExperimentalConfig.CONFIG, "simplebackups-common-experimental.toml");
+        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.SERVER, ServerConfig.CONFIG);
+        PayloadTypeRegistry.playS2C().register(Pause.TYPE, Pause.CODEC);
+        EventListener.register();
 
         if (CommonConfig.backupsDisabledByJvmArg()) {
             LOGGER.info("##########################################");
             LOGGER.info("#  Backups are disabled by JVM argument  #");
             LOGGER.info("##########################################");
         }
-
-        if (dist.isClient()) {
-            ClientInit.init(modEventBus, modContainer);
-        }
-    }
-
-    private void onRegisterPayloadHandler(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(SimpleBackups.MODID)
-                .versioned("1.0")
-                .optional();
-
-        registrar.playToClient(Pause.TYPE, Pause.CODEC, Pause::handle);
-    }
-
-    private void setup(FMLCommonSetupEvent event) {
-        // NO-OP
     }
 }

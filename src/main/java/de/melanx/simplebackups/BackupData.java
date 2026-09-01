@@ -1,3 +1,7 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
 import net.minecraft.core.HolderLookup;
@@ -118,6 +122,8 @@ public class BackupData extends SavedData {
     }
 
     private static SavedData.Factory<BackupData> factory() {
-        return new SavedData.Factory<>(BackupData::new, (nbt, provider) -> new BackupData().load(nbt, provider));
+        // Vanilla/Fabric 1.21.1 requires the data-fixer argument that NeoForge
+        // supplies through a convenience constructor. This custom data has no fixer.
+        return new SavedData.Factory<>(BackupData::new, (nbt, provider) -> new BackupData().load(nbt, provider), null);
     }
 }

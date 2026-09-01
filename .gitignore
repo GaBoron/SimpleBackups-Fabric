@@ -1,3 +1,6 @@
+# Modified by the Simple Backups Fabric project in 2026.
+# This file was adapted from upstream SimpleBackups for the Fabric platform.
+
 # eclipse
 bin
 *.launch
@@ -21,6 +24,23 @@ build
 eclipse
 /run*
 /logs
+
+# Local Agent workspace files
+/.agents/
+/.codex/
+/AGENTS.md
+/AGENTS.override.md
+/agents.md
+
+# Retired Agent-only port records (kept in ignored local knowledge instead)
+/docs/MIGRATION_*.md
+/docs/PORTING_PLAYBOOK.md
+/docs/UPSTREAM_SYNC.md
+/docs/VERSION_MATRIX.md
+/PORTING_PLAYBOOK.md
+/MIGRATION_*.md
+/UPSTREAM_SYNC.md
+/VERSION_MATRIX.md
 
 # Files from Forge MDK
 forge*changelog.txt
