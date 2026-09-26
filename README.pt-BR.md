@@ -12,6 +12,8 @@ comportamento de backups automáticos e manuais de mundos da versão upstream
 correspondente, substituindo a integração específica de Forge e NeoForge por
 uma implementação para Fabric.
 
+**[Baixar no Modrinth](https://modrinth.com/mod/simple-backups-for-fabric)**
+
 > [!IMPORTANT]
 > Este projeto não é uma versão oficial para Fabric criada pelos autores do
 > SimpleBackups. Relate problemas desta versão para Fabric neste repositório,
@@ -19,18 +21,19 @@ uma implementação para Fabric.
 
 ## Downloads
 
-Escolha o arquivo JAR que corresponda exatamente à sua versão do Minecraft.
+Escolha a versão que corresponde à sua versão do Minecraft. Cada versão leva à sua página no Modrinth; o JAR também está disponível neste repositório.
 
-| Minecraft / Port | Mods Fabric obrigatórios | Java | Download / Código-fonte |
+| Minecraft / Port | Mods Fabric obrigatórios | Java | Download |
 | --- | --- | --- | --- |
-| **26.2**<br>SimpleBackups Fabric 26.2.1 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.158.0+26.2<br>Forge Config API Port ≥ 26.2.1 | Java 25+ | [Baixar JAR](artifacts/26.2/simplebackups-fabric-26.2.1.jar)<br>[`fabric/26.2`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.2) |
-| **26.1–26.1.2**<br>SimpleBackups Fabric 26.1.5 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.149.1+26.1.2<br>Forge Config API Port ≥ 26.1.5 | Java 25+ | [Baixar JAR](artifacts/26.1/simplebackups-fabric-26.1.5.jar)<br>[`fabric/26.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1) |
-| **1.21.11**<br>SimpleBackups Fabric 21.11.6 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.141.6+1.21.11<br>Forge Config API Port ≥ 21.11.1 | Java 21+ | [Baixar JAR](artifacts/1.21.11/simplebackups-fabric-21.11.6.jar)<br>[`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x) |
-| **1.21.1**<br>SimpleBackups Fabric 4.0.30 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.116.15+1.21.1<br>Forge Config API Port ≥ 21.1.1 | Java 21+ | [Baixar JAR](artifacts/1.21.1/simplebackups-fabric-4.0.30.jar)<br>[`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1) |
+| **26.2**<br>SimpleBackups Fabric 26.2.1 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.158.0+26.2<br>Forge Config API Port ≥ 26.2.1 | 25+ | [Modrinth](https://modrinth.com/mod/simple-backups-for-fabric/version/1D2p0tsa)<br>[JAR no GitHub](artifacts/26.2/simplebackups-fabric-26.2.1.jar) |
+| **26.1–26.1.2**<br>SimpleBackups Fabric 26.1.5 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.149.1+26.1.2<br>Forge Config API Port ≥ 26.1.5 | 25+ | [Modrinth](https://modrinth.com/mod/simple-backups-for-fabric/version/syZmhGME)<br>[JAR no GitHub](artifacts/26.1/simplebackups-fabric-26.1.5.jar) |
+| **1.21.11**<br>SimpleBackups Fabric 21.11.6 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.141.6+1.21.11<br>Forge Config API Port ≥ 21.11.1 | 21+ | [Modrinth](https://modrinth.com/mod/simple-backups-for-fabric/version/YM9ibGbj)<br>[JAR no GitHub](artifacts/1.21.11/simplebackups-fabric-21.11.6.jar) |
+| **1.21.1**<br>SimpleBackups Fabric 4.0.30 | Fabric Loader ≥ 0.19.3<br>Fabric API ≥ 0.116.15+1.21.1<br>Forge Config API Port ≥ 21.1.1 | 21+ | [Modrinth](https://modrinth.com/mod/simple-backups-for-fabric/version/wTtU5OXZ)<br>[JAR no GitHub](artifacts/1.21.1/simplebackups-fabric-4.0.30.jar) |
 
-Cada branch de código-fonte parte do branch upstream correspondente do
-SimpleBackups e pode ser compilado de forma independente. Este branch padrão
-contém apenas os builds publicados e informações gerais do projeto.
+Branches do código-fonte: [`fabric/26.2`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.2),
+[`fabric/26.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1),
+[`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x) e
+[`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1).
 
 ## Instalação
 
