@@ -1,1 +1,20 @@
-rootProject.name = 'SimpleBackups'
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'SimpleBackups-Fabric'

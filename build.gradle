@@ -1,111 +1,94 @@
-import org.w3c.dom.Document
-import org.w3c.dom.NodeList
-
-import javax.xml.parsers.DocumentBuilderFactory
-
-buildscript {
-    apply from: 'https://moddingx.github.io/ModUtils/v5/buildscript.gradle', to: buildscript
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'maven-publish'
 }
 
-apply from: 'https://moddingx.github.io/ModUtils/v5/mod.gradle'
-apply plugin: 'org.moddingx.modgradle.cursedep'
-apply plugin: 'maven-publish'
-mod['version'] = getVersion(mod.minecraft + "-" + mod.base_version, new URL(mod.remote_maven + "/" + group.replace('.', '/') + "/" + name + "/maven-metadata.xml"))
+version = project.mod_version
+group = project.maven_group
 
-def branchName = getBranchName()
-if (branchName) {
-    mod["version"] = "${mod.version}-${branchName}"
+base {
+    archivesName = project.archives_base_name
 }
-
-project.version = mod.version
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        forRepositories(fg.repository)
-        filter {
-            includeGroup "maven.modrinth"
+    maven {
+        name = 'Fuzs Mod Resources'
+        url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+        content {
+            includeGroup 'fuzs.forgeconfigapiport'
         }
     }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    runs {
+        client {
+            client()
+            runDir 'run-1.20.1-client'
+        }
+        server {
+            server()
+            runDir 'run-1.20.1-server'
+        }
+    }
+
+    mods {
+        simplebackups {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
+    accessWidenerPath = file('src/main/resources/simplebackups.accesswidener')
 }
 
 dependencies {
-    implementation curse.mod(325235, 4886408)
-    implementation fg.deobf("maven.modrinth:cherished-worlds:Uwaq5LPL") // 6.1.7+1.20.1
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
 }
 
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+    from('NOTICE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            groupId = project.group
-            artifactId = project.name
-            version = project.version
-            artifact(jar) {
-                builtBy project.provider { project.tasks.named('reobfJar') }
-            }
-            if (mod.sources) {
-                artifact(sourceJar)
-            }
-            pom {
-                licenses {
-                    license {
-                        name = mod.license
-                        url = mod.license_url.toString()
-                    }
-                }
-            }
+        create('mavenJava', MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
         }
     }
-    repositories {
-        maven {
-            name 'melanx'
-            url mod.remote_maven
-            credentials(PasswordCredentials)
-        }
-    }
-}
-publish.dependsOn('reobfJar')
-
-
-private static String getVersion(String baseVersion, URL url) {
-    try {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(connection.getInputStream());
-        NodeList versionNodes = doc.getElementsByTagName("version");
-
-        String latestVersion = null;
-        for (int i = 0; i < versionNodes.getLength(); i++) {
-            String version = versionNodes.item(i).getTextContent();
-            if (version.startsWith(baseVersion)) {
-                latestVersion = version;
-            }
-        }
-
-        if (latestVersion == null) {
-            return baseVersion + ".0";
-        }
-
-        return baseVersion + "." + (Integer.parseInt(latestVersion.substring(latestVersion.lastIndexOf('.') + 1)) + 1);
-    } catch (Exception e) {
-        throw new RuntimeException(e);
-    }
-}
-
-static def getBranchName() {
-    def branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim();
-
-    if (branch.startsWith("issue/") || branch.startsWith("pr/") ||
-            branch.startsWith("fix/") || branch.startsWith("feature/")) {
-        return branch.replace('/', '_');
-    }
-
-    return null;
 }

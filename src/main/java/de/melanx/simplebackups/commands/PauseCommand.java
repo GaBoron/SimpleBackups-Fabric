@@ -1,10 +1,14 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import de.melanx.simplebackups.BackupData;
-import de.melanx.simplebackups.SimpleBackups;
+import de.melanx.simplebackups.network.SimpleNetwork;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 
@@ -29,7 +33,7 @@ public class PauseCommand implements Command<CommandSourceStack> {
     public int run(CommandContext<CommandSourceStack> context) {
         BackupData data = BackupData.get(context.getSource().getServer());
         data.setPaused(this.paused);
-        SimpleBackups.network().pause(this.paused);
+        SimpleNetwork.pause(this.paused, context.getSource().getServer().getPlayerList().getPlayers());
         return this.paused ? 1 : 0;
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
 import de.melanx.simplebackups.compat.CherishedWorldsCompat;
@@ -6,6 +10,9 @@ import de.melanx.simplebackups.config.BackupType;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
 import de.melanx.simplebackups.exception.NotEnoughDiskSpaceException;
+import de.melanx.simplebackups.network.Pause;
+import de.melanx.simplebackups.platform.ServerTranslations;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.FileUtil;
@@ -15,10 +22,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraftforge.common.ForgeI18n;
-import net.minecraftforge.network.ConnectionData;
-import net.minecraftforge.network.NetworkHooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,7 +238,7 @@ public class BackupThread extends Thread {
 
     private void broadcast(String message, Style style, Object... parameters) {
         //noinspection StringConcatenationArgumentToLogCall
-        SimpleBackups.LOGGER.info(String.format(ForgeI18n.getPattern(message), parameters));
+        SimpleBackups.LOGGER.info(ServerTranslations.format(message, parameters));
         if (CommonConfig.sendMessages() && !this.quiet) {
             this.server.execute(() -> {
                 this.server.getPlayerList().getPlayers().forEach(player -> {
@@ -251,13 +256,12 @@ public class BackupThread extends Thread {
 
     public static MutableComponent component(@Nullable ServerPlayer player, String key, Object... parameters) {
         if (player != null) {
-            ConnectionData data = NetworkHooks.getConnectionData(player.connection.connection);
-            if (data != null && data.getModList().contains(SimpleBackups.MODID)) {
+            if (ServerPlayNetworking.canSend(player, Pause.ID)) {
                 return Component.translatable(key, parameters);
             }
         }
 
-        return Component.literal(String.format(ForgeI18n.getPattern(key), parameters));
+        return Component.literal(ServerTranslations.format(key, parameters));
     }
 
     // vanilla copy with modifications
@@ -272,7 +276,7 @@ public class BackupThread extends Thread {
         try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputFile)))) {
             zipStream.setLevel(CommonConfig.getCompressionLevel());
             Path levelName = Paths.get(this.storageSource.levelId);
-            Path levelPath = this.storageSource.getWorldDir().resolve(this.storageSource.levelId).toRealPath();
+            Path levelPath = this.storageSource.getLevelPath(LevelResource.ROOT).toRealPath();
 
             List<Path> ignoredPaths = CommonConfig.getIgnoredPaths();
             List<Path> ignoredFiles = CommonConfig.getIgnoredFiles();

@@ -1,67 +1,72 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
+import com.mojang.brigadier.CommandDispatcher;
 import de.melanx.simplebackups.commands.BackupCommand;
 import de.melanx.simplebackups.commands.MergeCommand;
 import de.melanx.simplebackups.commands.PauseCommand;
 import de.melanx.simplebackups.config.CommonConfig;
 import de.melanx.simplebackups.config.ServerConfig;
+import de.melanx.simplebackups.network.SimpleNetwork;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EventListener {
 
     private boolean doBackup;
 
-    @SubscribeEvent
-    public void registerCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal(SimpleBackups.MODID)
+    public static void register() {
+        EventListener listener = new EventListener();
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> listener.registerCommands(dispatcher));
+        ServerTickEvents.END_SERVER_TICK.register(listener::onServerTick);
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> listener.onPlayerConnect(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> listener.onPlayerDisconnect(handler.player));
+    }
+
+    private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal(SimpleBackups.MODID)
                 .requires(stack -> ServerConfig.commandsCheatsDisabled() || stack.hasPermission(2))
                 .then(BackupCommand.register())
                 .then(PauseCommand.register())
                 .then(MergeCommand.register()));
     }
 
-    @SubscribeEvent
-    public void onServerTick(TickEvent.LevelTickEvent event) {
+    private void onServerTick(MinecraftServer server) {
         if (CommonConfig.backupsDisabledByJvmArg()) {
             return;
         }
 
-        //noinspection ConstantConditions
-        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide
-                && event.level.getGameTime() % 20 == 0 && event.level == event.level.getServer().overworld()) {
-            EventListener.checkForTickCounterConfigUpdate(event.level.getServer());
-
-            if (!event.level.getServer().getPlayerList().getPlayers().isEmpty() || this.doBackup || CommonConfig.doNoPlayerBackups()) {
+        ServerLevel level = server.overworld();
+        if (level.getGameTime() % 20 == 0) {
+            checkForTickCounterConfigUpdate(server);
+            if (!server.getPlayerList().getPlayers().isEmpty() || this.doBackup || CommonConfig.doNoPlayerBackups()) {
                 this.doBackup = false;
-
-                boolean done = BackupThread.tryCreateBackup(event.level.getServer());
-                if (done) {
+                if (BackupThread.tryCreateBackup(server)) {
                     SimpleBackups.LOGGER.info("Backup done.");
                 }
             }
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerConnect(PlayerEvent.PlayerLoggedInEvent event) {
-        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg() && event.getEntity().getServer() != null) {
-            SimpleBackups.network().pause(event.getEntity(), BackupData.get(event.getEntity().getServer()).isPaused());
+    private void onPlayerConnect(ServerPlayer player) {
+        if (CommonConfig.isEnabled() && !CommonConfig.backupsDisabledByJvmArg()) {
+            SimpleNetwork.pause(player, BackupData.get(player.getServer()).isPaused());
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            //noinspection ConstantConditions
-            if (player.getServer().getPlayerList().getPlayers().isEmpty()) {
-                this.doBackup = true;
-            }
+    private void onPlayerDisconnect(ServerPlayer player) {
+        MinecraftServer server = player.getServer();
+        if (server.getPlayerList().getPlayers().stream().noneMatch(other -> other != player)) {
+            this.doBackup = true;
         }
     }
 
