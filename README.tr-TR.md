@@ -11,7 +11,7 @@ tarafından sürdürülen, resmî olmayan Fabric portudur. İlgili upstream sür
 zamanlanmış ve elle başlatılan dünya yedekleme davranışını korurken Forge ve
 NeoForge platform entegrasyonunu Fabric ile değiştirir.
 
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric) [![Minecraft Versions](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FO8REYcgj&query=%24.game_versions&label=Minecraft&logo=minecraft&color=62B47A)](https://modrinth.com/mod/simple-backups-for-fabric/versions)
 
 > [!IMPORTANT]
 > Bu proje, SimpleBackups geliştiricilerinin resmî Fabric sürümü değildir.
