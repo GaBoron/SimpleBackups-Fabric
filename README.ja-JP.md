@@ -11,7 +11,7 @@
 手動ワールドバックアップの動作を維持しつつ、Forge / NeoForge 固有の
 統合部分を Fabric 向けに置き換えています。
 
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric) [![Minecraft Versions](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FO8REYcgj&query=%24.game_versions&label=Minecraft&logo=minecraft&color=62B47A)](https://modrinth.com/mod/simple-backups-for-fabric/versions)
 
 > [!IMPORTANT]
 > このプロジェクトは SimpleBackups 作者による公式 Fabric 版ではありません。
