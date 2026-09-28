@@ -10,7 +10,7 @@
 由社群維護的 Fabric 移植版。專案在保留對應上游版本的排程與手動世界備份行為
 的同時，將 Forge 與 NeoForge 平台整合替換為 Fabric 實作。
 
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric) [![Minecraft Versions](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FO8REYcgj&query=%24.game_versions&label=Minecraft&logo=minecraft&color=62B47A)](https://modrinth.com/mod/simple-backups-for-fabric/versions)
 
 > [!IMPORTANT]
 > 本專案不是 SimpleBackups 原作者發布的官方 Fabric 版本。Fabric 移植版的
