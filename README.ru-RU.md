@@ -11,7 +11,7 @@
 сохраняет поведение автоматического и ручного резервного копирования миров из
 соответствующей версии upstream, заменяя интеграцию Forge и NeoForge на Fabric.
 
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/O8REYcgj?logo=modrinth&label=Modrinth%20downloads)](https://modrinth.com/mod/simple-backups-for-fabric) [![Minecraft Versions](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FO8REYcgj&query=%24.game_versions&label=Minecraft&logo=minecraft&color=62B47A)](https://modrinth.com/mod/simple-backups-for-fabric/versions)
 
 > [!IMPORTANT]
 > Это не официальная версия для Fabric от авторов SimpleBackups. Сообщайте о
