@@ -1,3 +1,7 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups;
 
 import com.mojang.serialization.Codec;
@@ -29,7 +33,14 @@ public class BackupData extends SavedData {
             .apply(instance, BackupData::new));
 
     public static SavedDataType<BackupData> type() {
-        return new SavedDataType<>(Identifier.fromNamespaceAndPath("simplebackups", "data"), context -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0), context -> CODEC);
+        // Fabric API deliberately accepts a null data-fix type for custom saved data whose schema
+        // is not owned by Mojang's data fixer, matching the upstream NeoForge behavior.
+        return new SavedDataType<>(
+                Identifier.fromNamespaceAndPath("simplebackups", "data"),
+                () -> new BackupData(0, 0, false, false, CommonConfig.useTickCounter(), 0),
+                CODEC,
+                null
+        );
     }
 
     private BackupData(long lastSaved, long lastFullBackup, boolean paused, boolean merging, boolean usesTickCounter, int backupsSinceLastPlayerJoined) {

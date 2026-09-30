@@ -1,3 +1,5 @@
+# Modified by the Simple Backups Fabric project in 2026.
+# Adapted from upstream SimpleBackups; Apache-2.0.
 # eclipse
 bin
 *.launch
@@ -29,3 +31,16 @@ forge*changelog.txt
 # CoreMods
 *.d.ts
 **/tsconfig.json
+
+# Local agent data and private maintenance notes
+/AGENTS.md
+/.agents/
+/.codex/
+/docs/MIGRATION_*.md
+/docs/PORTING_PLAYBOOK.md
+/docs/PUBLISHING.md
+/docs/UPSTREAM_SYNC.md
+/docs/VERSION_MATRIX.md
+
+/AGENTS.override.md
+/agents.md

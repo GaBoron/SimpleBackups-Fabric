@@ -1,3 +1,5 @@
+# Modified by the Simple Backups Fabric project in 2026.
+# Adapted from upstream SimpleBackups; Apache-2.0.
 name: 'Build test version'
 on:
   push:
@@ -18,7 +20,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
 
       - name: Build
         run: |

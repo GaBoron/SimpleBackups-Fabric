@@ -1,13 +1,15 @@
+/*
+ * Modified by the Simple Backups Fabric project in 2026.
+ * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ */
 package de.melanx.simplebackups.network;
 
 import de.melanx.simplebackups.SimpleBackups;
-import de.melanx.simplebackups.client.ClientEventHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
@@ -26,7 +28,4 @@ public record Pause(boolean pause) implements CustomPacketPayload {
         return Pause.TYPE;
     }
 
-    public void handle(IPayloadContext context) {
-        ClientEventHandler.setPaused(this.pause);
-    }
 }

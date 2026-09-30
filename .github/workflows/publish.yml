@@ -1,3 +1,5 @@
+# Modified by the Simple Backups Fabric project in 2026.
+# Adapted from upstream SimpleBackups; Apache-2.0.
 name: publish
 
 on:
@@ -11,6 +13,7 @@ permissions:
 
 jobs:
   check:
+    if: github.repository == 'ChaoticTrials/SimpleBackups'
     runs-on: ubuntu-latest
     outputs:
       should_publish: ${{ steps.check.outputs.should_publish }}

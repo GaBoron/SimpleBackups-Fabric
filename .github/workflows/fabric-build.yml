@@ -1,0 +1,30 @@
+name: Build Fabric
+
+on:
+  push:
+    branches:
+      - 'fabric/26.3'
+  pull_request:
+    branches:
+      - 'fabric/26.3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v6
+      - run: chmod +x gradlew
+      - run: ./gradlew build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simplebackups-fabric-26.3
+          path: build/libs/*.jar
