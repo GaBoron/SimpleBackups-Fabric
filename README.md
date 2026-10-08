@@ -1,3 +1,4 @@
+<!-- Modified by the Simple Backups Fabric project in 2026. Adapted from upstream SimpleBackups; Apache-2.0. -->
 # Simple Backups Fabric
 
 <p align="center">
@@ -8,31 +9,51 @@ An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups), the scheduled
 and on-demand Minecraft world backup mod created by the upstream authors.
 
-> **A complete, community-maintained Fabric port of SimpleBackups across
-> multiple Minecraft versions, including historical releases and future
-> upstream updates.**
+GUI preview **26.1.5-gui** supports **Minecraft 26.1.x (26.1–26.1.2)** and is based on upstream
+**SimpleBackups 26.1.5**.
 
-This branch targets **Minecraft 26.1–26.1.2** and corresponds to upstream
-**SimpleBackups 26.1.5**. The current 26.2 line is maintained separately on
-`fabric/26.2`. Historical version lines are ported independently from their
-matching upstream source; they are not emulated from one cross-version branch.
-
-## Current 26.1 support
+## Features
 
 - Scheduled and manual full, incremental, and differential backups
 - ZIP, ZSTD, and SBK archives, including chain merging
 - Existing TOML configuration names, keys, defaults, and directory layout
 - Pause state networking and client HUD
+- Restore backups from the singleplayer world selection screen
 - Dedicated server and integrated server operation
 - Optional Cherished Worlds and mc2discord integration, isolated when absent
 
-Required runtime mods are Fabric Loader, Fabric API, and Forge Config API Port.
+Required runtime mods are Fabric Loader **0.19.3 or newer**, Fabric API
+**0.149.1+26.1.2 or newer**, and Forge Config API Port **26.1.5 or newer**.
+Install the versions of these mods matching your Minecraft version, then place the Simple Backups
+Fabric JAR in the `mods` folder. Start a manual backup with
+`/simplebackups backup start`.
+
 Mod Menu is optional and exposes the configuration screen. XZ and zstd-jni are
-bundled in the release JAR together with their license texts.
+bundled in the release JAR together with their license texts. Commons Compress
+is also bundled.
+
+Select a world in the singleplayer menu and click **Restore** beside the search
+field. Choose a backup, then restore it as a new world or replace the selected
+world. New worlds use `original-name-YYYY-MM-DD_HH-mm-ss`, based on the selected
+backup's time; existing folder names are preserved by adding a numeric suffix.
+Incremental backups include their preceding archives; differential
+backups use the full backup and the selected snapshot.
+The next backup of a restored world starts a new full backup chain.
+
+Replacement preserves the original world in `simplebackups-restores/` beside
+`saves/`. The confirmation screen warns about replacing current progress, and
+the completion screen shows the preserved world's location. Backups are read
+from the configured output directory. Restoration is available for local
+worlds while they are closed; multiplayer server backups are not accessible
+from this screen.
+
+[Downloads and documentation in all supported languages](https://github.com/GaBoron/SimpleBackups-Fabric#downloads)
+are available on the main project page.
 
 ## Build
 
-Minecraft 26.1 requires Java 25. The Gradle toolchain can download a matching
+The 26.1.x line requires Java 25. This branch builds against Minecraft 26.1.2;
+the Gradle toolchain can download a matching
 JDK automatically:
 
 ```powershell
@@ -40,15 +61,6 @@ JDK automatically:
 ```
 
 The release JAR is written to `build/libs/`.
-
-## Version lines and upstream sync
-
-- [Version matrix and branch policy](docs/VERSION_MATRIX.md)
-- [26.1 platform migration record](docs/MIGRATION_26.1.md)
-- [Future upstream synchronization workflow](docs/UPSTREAM_SYNC.md)
-
-The Fabric branches use the `fabric/<upstream-branch>` convention. Each line
-records its upstream branch/tag/commit and remains independently buildable.
 
 ## Attribution and license
 
