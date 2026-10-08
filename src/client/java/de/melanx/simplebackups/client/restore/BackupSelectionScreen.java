@@ -178,10 +178,9 @@ public final class BackupSelectionScreen extends Screen {
         this.progress = "";
         rebuildWidgets();
         Path saves = this.minecraft.getLevelSource().getBaseDir();
-        String copyName = text("copy_name", this.world.getLevelName()).getString();
         CompletableFuture.supplyAsync(() -> {
             try {
-                return RestoreWorldAction.restore(saves, this.world, point, mode, copyName, name -> this.progress = name);
+                return RestoreWorldAction.restore(saves, this.world, point, mode, name -> this.progress = name);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

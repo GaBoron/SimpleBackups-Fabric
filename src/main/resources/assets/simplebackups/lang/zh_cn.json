@@ -21,7 +21,6 @@
   "simplebackups.restore.type.differential": "差异",
   "simplebackups.restore.confirm_copy": "将“%s”在 %s 的备份恢复为新存档？当前存档会保留。",
   "simplebackups.restore.confirm_replace": "将“%s”替换为 %s 的备份？当前进度将被替换。替换前会将原存档保留在 simplebackups-restores 文件夹。",
-  "simplebackups.restore.copy_name": "%s（已恢复）",
   "simplebackups.restore.world_open": "请先关闭存档，再恢复备份。",
   "simplebackups.restore.working": "正在恢复备份，请稍候…",
   "simplebackups.restore.failed_title": "恢复失败",

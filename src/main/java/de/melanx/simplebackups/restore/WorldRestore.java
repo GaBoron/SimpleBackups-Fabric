@@ -72,7 +72,7 @@ public final class WorldRestore {
                 }
                 validation.validate(prepared, mode);
                 if (mode == Mode.COPY) {
-                    Path destination = saves.resolve(worldId + "-restored-" + suffix);
+                    Path destination = availableCopyPath(saves, point.restoredName(worldId));
                     moveWorld(prepared, destination);
                     return new Result(destination, null);
                 }
@@ -97,6 +97,14 @@ public final class WorldRestore {
             throw new IOException("Restore installation failed; original world retained at " + retained, installError);
         }
         return new Result(source, previous);
+    }
+
+    private static Path availableCopyPath(Path saves, String name) {
+        Path destination = saves.resolve(name);
+        for (int number = 2; Files.exists(destination, LinkOption.NOFOLLOW_LINKS); number++) {
+            destination = saves.resolve(name + "-" + number);
+        }
+        return destination;
     }
 
     private static void moveWorld(Path source, Path destination) throws IOException {

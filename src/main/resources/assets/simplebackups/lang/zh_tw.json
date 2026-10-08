@@ -21,7 +21,6 @@
   "simplebackups.restore.type.differential": "差異",
   "simplebackups.restore.confirm_copy": "將「%s」在 %s 的備份還原為新世界？目前世界會保留。",
   "simplebackups.restore.confirm_replace": "將「%s」取代為 %s 的備份？目前進度將被取代。取代前會將原世界保留在 simplebackups-restores 資料夾。",
-  "simplebackups.restore.copy_name": "%s（已還原）",
   "simplebackups.restore.world_open": "請先關閉世界，再還原備份。",
   "simplebackups.restore.working": "正在還原備份，請稍候…",
   "simplebackups.restore.failed_title": "還原失敗",

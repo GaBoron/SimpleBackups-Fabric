@@ -21,7 +21,6 @@
   "simplebackups.restore.type.differential": "Differential",
   "simplebackups.restore.confirm_copy": "Restore the backup of \"%s\" from %s as a new world? The current world will be kept.",
   "simplebackups.restore.confirm_replace": "Replace \"%s\" with its backup from %s? Current progress will be replaced. The original world will be preserved in the simplebackups-restores folder before replacement.",
-  "simplebackups.restore.copy_name": "%s (restored)",
   "simplebackups.restore.world_open": "Close the world before restoring a backup.",
   "simplebackups.restore.working": "Restoring backup... Please wait.",
   "simplebackups.restore.failed_title": "Restoration failed",

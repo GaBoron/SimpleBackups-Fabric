@@ -20,7 +20,7 @@ final class RestoreWorldAction {
     private RestoreWorldAction() {}
 
     static WorldRestore.Result restore(Path saves, LevelSummary world, RestorePoint point, WorldRestore.Mode mode,
-                                       String copyName, Consumer<String> progress) throws IOException {
+                                       Consumer<String> progress) throws IOException {
         return WorldRestore.restore(point, saves, world.getLevelId(), mode, (prepared, restoreMode) -> {
             Path levelFile = prepared.resolve("level.dat");
             var tag = NbtIo.readCompressed(levelFile, NbtAccounter.create(100L * 1024 * 1024));
@@ -29,7 +29,7 @@ final class RestoreWorldAction {
                 throw new IOException("Backup was created by a newer Minecraft version");
             }
             if (restoreMode == WorldRestore.Mode.COPY) {
-                data.putString("LevelName", copyName);
+                data.putString("LevelName", point.restoredName(world.getLevelName()));
                 NbtIo.writeCompressed(tag, levelFile);
             }
             resetBackupHistory(prepared);

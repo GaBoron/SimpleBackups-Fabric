@@ -34,7 +34,9 @@ is also bundled.
 
 Select a world in the singleplayer menu and click **Restore** beside the search
 field. Choose a backup, then restore it as a new world or replace the selected
-world. Incremental backups include their preceding archives; differential
+world. New worlds use `original-name-YYYY-MM-DD_HH-mm-ss`, based on the selected
+backup's time; existing folder names are preserved by adding a numeric suffix.
+Incremental backups include their preceding archives; differential
 backups use the full backup and the selected snapshot.
 The next backup of a restored world starts a new full backup chain.
 
