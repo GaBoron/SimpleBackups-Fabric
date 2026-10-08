@@ -18,6 +18,7 @@ This version targets **Minecraft 26.3** and corresponds to upstream
 - ZIP, ZSTD, and SBK archives, including chain merging
 - Existing TOML configuration names, keys, defaults, and directory layout
 - Pause state networking and client HUD
+- Restore backups from the singleplayer world selection screen
 - Dedicated server and integrated server operation
 - Optional Cherished Worlds and mc2discord integration, isolated when absent
 
@@ -30,6 +31,19 @@ Fabric JAR in the `mods` folder. Start a manual backup with
 Mod Menu is optional and exposes the configuration screen. XZ and zstd-jni are
 bundled in the release JAR together with their license texts. Commons Compress
 is also bundled.
+
+Select a world in the singleplayer menu and click **Restore** beside the search
+field. Choose a backup, then restore it as a new world or replace the selected
+world. Incremental backups include their preceding archives; differential
+backups use the full backup and the selected snapshot.
+The next backup of a restored world starts a new full backup chain.
+
+Replacement preserves the original world in `simplebackups-restores/` beside
+`saves/`. The confirmation screen warns about replacing current progress, and
+the completion screen shows the preserved world's location. Backups are read
+from the configured output directory. Restoration is available for local
+worlds while they are closed; multiplayer server backups are not accessible
+from this screen.
 
 [Downloads and documentation in all supported languages](https://github.com/GaBoron/SimpleBackups-Fabric#downloads)
 are available on the main project page.
