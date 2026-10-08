@@ -9,7 +9,7 @@ An unofficial, community-maintained Fabric port of
 [SimpleBackups](https://github.com/ChaoticTrials/SimpleBackups), the scheduled
 and on-demand Minecraft world backup mod created by the upstream authors.
 
-This version targets **Minecraft 26.3** and corresponds to upstream
+GUI preview **26.3.0-gui** targets **Minecraft 26.3** and is based on upstream
 **SimpleBackups 26.3.0**.
 
 ## Features
