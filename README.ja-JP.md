@@ -21,6 +21,8 @@
 
 Minecraft のバージョンに合うリリースを選んでください。表から GitHub の JAR を入手できます。上の Modrinth バッジから、Modrinth で公開されているバージョンを確認できます。
 
+### 通常の Fabric 移植版
+
 | Minecraft / 移植版 | 必須 Fabric Mod | Java | ダウンロード |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [GitHub の JAR](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -36,6 +38,21 @@ Minecraft のバージョンに合うリリースを選んでください。表�
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x)、
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1)、
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x)。
+
+### GUI プレビュー版
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+シングルプレイのワールド選択画面にバックアップの復元ボタンを追加します。
+通常の移植版で作成済みの ZIP、ZSTD、SBK 形式の完全・増分・差分バックアップを
+復元できます。元の名前とバックアップ時刻を付けた新しいワールドとして復元するか、
+元のワールドを保存したうえで選択中のワールドを置き換えることができます。
+
+[GUI の JAR をダウンロード](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [ソースと使い方](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+必要な Fabric Mod と Java のバージョンは、上の 26.3 移植版と同じです。
+通常の移植版の JAR をこの JAR に置き換え、`mods` 内の SimpleBackups Fabric の
+JAR は一つだけにしてください。
 
 ## インストール
 

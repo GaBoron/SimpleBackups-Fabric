@@ -23,6 +23,8 @@ Fabric.
 
 Wähle die Veröffentlichung, die zu deiner Minecraft-Version passt. Die Tabelle verlinkt GitHub-JARs; über das Modrinth-Abzeichen oben findest du die dort veröffentlichten Versionen.
 
+### Reguläre Fabric-Ports
+
 | Minecraft / Port | Erforderliche Fabric-Mods | Java | Download |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [GitHub-JAR](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -38,6 +40,22 @@ Quellcode-Branches: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-Fab
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x),
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1) und
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x).
+
+### GUI-Vorschau
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+Fügt der Weltauswahl im Einzelspielermodus eine Schaltfläche zum Wiederherstellen
+von Backups hinzu. Unterstützt bestehende vollständige, inkrementelle und
+differenzielle Backups des regulären Ports in ZIP, ZSTD und SBK. Backups können
+als neue Welt mit ursprünglichem Namen und Backup-Zeitpunkt wiederhergestellt
+werden oder die ausgewählte Welt ersetzen; dabei bleibt die ursprüngliche Welt erhalten.
+
+[GUI-JAR herunterladen](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Quellcode und Nutzung](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+Es gelten dieselben Fabric-Mod- und Java-Anforderungen wie beim oben aufgeführten
+Port für 26.3. Ersetze dessen JAR durch diese Version und behalte nur eine
+SimpleBackups-Fabric-JAR im Ordner `mods`.
 
 ## Installation
 

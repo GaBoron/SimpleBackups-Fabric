@@ -21,6 +21,8 @@
 
 Выберите выпуск для вашей версии Minecraft. В таблице доступны JAR на GitHub; значок Modrinth выше ведёт к версиям, опубликованным там.
 
+### Стандартные версии для Fabric
+
 | Minecraft / Порт | Обязательные моды Fabric | Java | Загрузка |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [JAR на GitHub](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -36,6 +38,22 @@
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x),
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1) и
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x).
+
+### Предварительная версия с GUI
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+Добавляет кнопку восстановления резервных копий на экран выбора мира в одиночной
+игре. Поддерживает существующие полные, инкрементные и дифференциальные копии
+стандартного порта в форматах ZIP, ZSTD и SBK. Копию можно восстановить как новый
+мир с исходным именем и временем резервного копирования либо заменить выбранный
+мир, сохранив оригинал.
+
+[Скачать JAR с GUI](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Исходный код и использование](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+Требования к модам Fabric и Java совпадают с версией для 26.3 в таблице выше.
+Замените JAR стандартной версии этим файлом и оставьте только один JAR
+SimpleBackups Fabric в папке `mods`.
 
 ## Установка
 

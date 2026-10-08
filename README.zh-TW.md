@@ -20,6 +20,8 @@
 
 請選擇與你的 Minecraft 版本相符的發布版本。表格提供 GitHub JAR；上方的 Modrinth 徽章可查看已在 Modrinth 發布的版本。
 
+### 一般 Fabric 移植版
+
 | Minecraft / 移植版本 | 必要的 Fabric 前置 Mod | Java | 下載 |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [GitHub JAR](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -35,6 +37,19 @@
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x)、
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1)、
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x)。
+
+### GUI 預覽版
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+在單人遊戲的世界選擇介面新增**還原備份**按鈕，可讀取一般移植版既有的
+ZIP、ZSTD、SBK 完整、增量與差異備份。可以還原為以「原名-備份時間」命名的新世界，
+也可以取代目前世界並保留原世界。
+
+[下載 GUI JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [原始碼與使用說明](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+前置 Mod 與 Java 要求和上方 26.3 移植版相同。安裝時以此 JAR 取代一般移植版，
+`mods` 中只保留一個 SimpleBackups Fabric JAR。
 
 ## 安裝
 

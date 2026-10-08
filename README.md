@@ -22,6 +22,8 @@ version while replacing Forge and NeoForge platform integration with Fabric.
 Choose the release that matches your Minecraft version. The table links to
 GitHub JARs; use the Modrinth badge above to browse versions published there.
 
+### Standard Fabric ports
+
 | Minecraft / port | Required Fabric mods | Java | Download |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [GitHub JAR](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -37,6 +39,21 @@ Source branches: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-Fabric
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x),
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1), and
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x).
+
+### GUI preview
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+Adds a **Restore** button to the singleplayer world selection screen. It can
+restore existing full, incremental and differential backups from the standard
+port in ZIP, ZSTD and SBK formats. Restore as a new world named after the original
+and the backup time, or replace the selected world while preserving the original.
+
+[Download GUI JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Source and usage](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+Requires the same Fabric mods and Java version as the 26.3 port above. Install
+this JAR in place of the standard port; keep only one SimpleBackups Fabric JAR
+in `mods`.
 
 ## Installation
 

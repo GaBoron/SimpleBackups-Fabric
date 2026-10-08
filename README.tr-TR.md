@@ -21,6 +21,8 @@ NeoForge platform entegrasyonunu Fabric ile değiştirir.
 
 Minecraft sürümünüze uygun yayını seçin. Tabloda GitHub JAR bağlantıları bulunur; yukarıdaki Modrinth rozeti orada yayımlanan sürümlere götürür.
 
+### Standart Fabric sürümleri
+
 | Minecraft / Port | Gerekli Fabric modları | Java | İndirme |
 | --- | --- | --- | --- |
 | **26.3**<br>SimpleBackups Fabric 26.3.0 | Fabric Loader ≥ 0.19.5<br>Fabric API ≥ 0.161.0+26.3<br>Forge Config API Port ≥ 26.3.1 | 25+ | [GitHub JAR](artifacts/26.3/simplebackups-fabric-26.3.0.jar) |
@@ -36,6 +38,22 @@ Kaynak kodu dalları: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-F
 [`fabric/1.21.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.x),
 [`fabric/1.21.1`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.21.1) ve
 [`fabric/1.20.x`](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/1.20.x).
+
+### GUI önizleme sürümü
+
+**26.3.0-gui · Minecraft 26.3 · Fabric**
+
+Tek oyunculu dünya seçme ekranına yedekleri geri yükleme düğmesi ekler. Standart
+sürümle önceden oluşturulmuş ZIP, ZSTD ve SBK biçimindeki tam, artımlı ve
+diferansiyel yedekleri destekler. Yedeği özgün adı ve yedekleme zamanı ile
+adlandırılan yeni bir dünya olarak geri yükleyebilir veya özgün dünyayı koruyarak
+seçili dünyayı değiştirebilirsiniz.
+
+[GUI JAR dosyasını indir](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Kaynak kodu ve kullanım](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+
+Fabric modları ve Java gereksinimleri yukarıdaki 26.3 sürümüyle aynıdır.
+Standart sürümün JAR dosyasını bu dosyayla değiştirin; `mods` klasöründe yalnızca
+bir SimpleBackups Fabric JAR dosyası bulunsun.
 
 ## Kurulum
 
