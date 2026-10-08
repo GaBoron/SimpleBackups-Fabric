@@ -47,7 +47,9 @@ Fügt der Weltauswahl im Einzelspielermodus eine Schaltfläche zum Wiederherstel
 von Backups hinzu. Unterstützt bestehende vollständige, inkrementelle und
 differenzielle Backups des regulären Ports in ZIP, ZSTD und SBK. Backups können
 als neue Welt mit ursprünglichem Namen und Backup-Zeitpunkt wiederhergestellt
-werden oder die ausgewählte Welt ersetzen; dabei bleibt die ursprüngliche Welt erhalten.
+werden oder die ausgewählte Welt ersetzen. Vor dem Ersetzen wird die aktuelle
+Welt im eingestellten Format gesichert. Dieses **Rollback**-Backup erscheint in
+derselben Liste und unterliegt den normalen Aufbewahrungs- und Speichergrenzen.
 
 | Minecraft | GUI-Version / Quellcode | Download |
 | --- | --- | --- |

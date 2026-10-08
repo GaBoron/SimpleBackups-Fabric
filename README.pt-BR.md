@@ -47,7 +47,9 @@ Adiciona um botão de restauração de backups à seleção de mundos no modo de
 jogador. Permite restaurar backups completos, incrementais e diferenciais já
 criados pela versão padrão nos formatos ZIP, ZSTD e SBK. Restaure como um novo
 mundo com o nome original e a data e hora do backup, ou substitua o mundo
-selecionado mantendo uma cópia do original.
+selecionado após criar um backup do mundo atual no formato configurado. Esse
+backup de **Rollback** aparece na mesma lista e segue os limites normais de
+retenção e armazenamento.
 
 | Minecraft | Versão com GUI / código-fonte | Download |
 | --- | --- | --- |

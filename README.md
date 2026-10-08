@@ -45,7 +45,9 @@ Source branches: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-Fabric
 Adds a **Restore** button to the singleplayer world selection screen. It can
 restore existing full, incremental and differential backups from the standard
 port in ZIP, ZSTD and SBK formats. Restore as a new world named after the original
-and the backup time, or replace the selected world while preserving the original.
+and the backup time, or replace the selected world after backing it up. This
+**Rollback** snapshot uses the configured format, appears in the same restore
+list, and follows the normal backup retention and storage limits.
 
 | Minecraft | GUI version / source | Download |
 | --- | --- | --- |

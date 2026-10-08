@@ -44,8 +44,10 @@ Kaynak kodu dalları: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-F
 Tek oyunculu dünya seçme ekranına yedekleri geri yükleme düğmesi ekler. Standart
 sürümle önceden oluşturulmuş ZIP, ZSTD ve SBK biçimindeki tam, artımlı ve
 diferansiyel yedekleri destekler. Yedeği özgün adı ve yedekleme zamanı ile
-adlandırılan yeni bir dünya olarak geri yükleyebilir veya özgün dünyayı koruyarak
-seçili dünyayı değiştirebilirsiniz.
+adlandırılan yeni bir dünya olarak geri yükleyebilir veya seçili dünyayı
+değiştirebilirsiniz. Değiştirmeden önce mevcut dünya, yapılandırılan biçimde
+yedeklenir. **Rollback** etiketiyle aynı listede görünen bu yedek, normal
+saklama ve depolama sınırlarına tabidir.
 
 | Minecraft | GUI sürümü / kaynak kodu | İndirme |
 | --- | --- | --- |
