@@ -40,12 +40,14 @@ Incremental backups include their preceding archives; differential
 backups use the full backup and the selected snapshot.
 The next backup of a restored world starts a new full backup chain.
 
-Replacement preserves the original world in `simplebackups-restores/` beside
-`saves/`. The confirmation screen warns about replacing current progress, and
-the completion screen shows the preserved world's location. Backups are read
-from the configured output directory. Restoration is available for local
-worlds while they are closed; multiplayer server backups are not accessible
-from this screen.
+Before replacement, the current world is compressed using the configured backup
+format and filters. This **Rollback** snapshot appears in the same restore list
+and follows the normal chain-count and storage limits. If creating it fails,
+replacement is cancelled. Temporary installation files are cleared on success.
+
+Backups are read from the configured output directory. Restoration is available
+for local worlds while they are closed; multiplayer server backups are not
+accessible from this screen.
 
 [Downloads and documentation in all supported languages](https://github.com/GaBoron/SimpleBackups-Fabric#downloads)
 are available on the main project page.

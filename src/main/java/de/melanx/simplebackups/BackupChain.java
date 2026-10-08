@@ -1,3 +1,4 @@
+/* Modified by Simple Backups Fabric in 2026; adapted from upstream SimpleBackups; Apache-2.0. */
 package de.melanx.simplebackups;
 
 import com.google.gson.Gson;
@@ -25,6 +26,7 @@ public class BackupChain {
     private final BackupType backupType;
     private final CompressionBase.BackupFormat format;
     private long lastUpdated;
+    private boolean beforeRestore;
 
     public BackupChain(Path parentFolder, Path fullBackup, BackupType backupType, CompressionBase.BackupFormat format) {
         this(parentFolder, fullBackup, new ArrayList<>(), backupType, format, System.currentTimeMillis());
@@ -77,6 +79,14 @@ public class BackupChain {
         return this.lastUpdated;
     }
 
+    public void markBeforeRestore() {
+        this.beforeRestore = true;
+    }
+
+    public boolean isBeforeRestore() {
+        return this.beforeRestore;
+    }
+
     public long getFileSize() {
         try {
             return Files.walk(this.parentFolder).filter(Files::isRegularFile).mapToLong(path -> {
@@ -117,6 +127,14 @@ public class BackupChain {
     }
 
     public void writeMetadata() {
+        try {
+            writeMetadataOrThrow();
+        } catch (IOException e) {
+            SimpleBackups.LOGGER.warn("Failed to write metadata to {}", this.parentFolder.resolve(METADATA_FILE), e);
+        }
+    }
+
+    public void writeMetadataOrThrow() throws IOException {
         Path meta = this.parentFolder.resolve(METADATA_FILE);
         JsonObject json = new JsonObject();
         json.addProperty("backupType", this.getBackupType().name());
@@ -128,19 +146,16 @@ public class BackupChain {
         json.add("children", children);
         json.addProperty("lastUpdated", this.lastUpdated);
         json.addProperty("format", this.format.name());
-        try {
-            Files.writeString(meta, json.toString());
-        } catch (IOException e) {
-            SimpleBackups.LOGGER.warn("Failed to write metadata to {}", meta, e);
-        }
+        if (this.beforeRestore) json.addProperty("beforeRestore", true);
+        Files.writeString(meta, json.toString());
     }
 
     @Nullable
     public static BackupChain readMetadata(Path chainDir) {
         Path meta = chainDir.resolve(METADATA_FILE);
 
-        try {
-            JsonObject json = new Gson().fromJson(Files.newBufferedReader(meta), JsonObject.class);
+        try (var reader = Files.newBufferedReader(meta)) {
+            JsonObject json = new Gson().fromJson(reader, JsonObject.class);
 
             Path fullBackup = Path.of(json.get("fullBackup").getAsString());
             List<Path> children = new ArrayList<>();
@@ -162,7 +177,9 @@ public class BackupChain {
                 }
             }
 
-            return new BackupChain(chainDir, fullBackup, children, backupType, format, lastUpdated);
+            BackupChain chain = new BackupChain(chainDir, fullBackup, children, backupType, format, lastUpdated);
+            if (json.has("beforeRestore") && json.get("beforeRestore").getAsBoolean()) chain.markBeforeRestore();
+            return chain;
         } catch (IOException e) {
             SimpleBackups.LOGGER.warn("Failed to read metadata from {}", meta, e);
             return null;

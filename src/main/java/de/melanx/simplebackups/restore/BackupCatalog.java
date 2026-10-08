@@ -64,7 +64,8 @@ public final class BackupCatalog {
         var chain = new ArrayList<Path>();
         chain.add(full);
         String name = directory.getFileName().toString();
-        points.add(point(name + "/" + full.getFileName(), format, BackupType.FULL_BACKUPS, chain));
+        boolean beforeRestore = json.has("beforeRestore") && json.get("beforeRestore").getAsBoolean();
+        points.add(point(name + "/" + full.getFileName(), format, BackupType.FULL_BACKUPS, chain, beforeRestore));
         for (var child : json.getAsJsonArray("children")) {
             try {
                 Path archive = archivePath(directory, child.getAsString());
@@ -96,9 +97,13 @@ public final class BackupCatalog {
     }
 
     private static RestorePoint point(String name, BackupFormat format, BackupType type, List<Path> archives) throws IOException {
+        return point(name, format, type, archives, false);
+    }
+
+    private static RestorePoint point(String name, BackupFormat format, BackupType type, List<Path> archives, boolean beforeRestore) throws IOException {
         long size = 0;
         for (Path archive : archives) size += Files.size(archive);
-        return new RestorePoint(name, Files.getLastModifiedTime(archives.getLast()).toMillis(), size, format, type, archives);
+        return new RestorePoint(name, Files.getLastModifiedTime(archives.getLast()).toMillis(), size, format, type, archives, beforeRestore);
     }
 
     private static BackupFormat formatOf(Path path) {

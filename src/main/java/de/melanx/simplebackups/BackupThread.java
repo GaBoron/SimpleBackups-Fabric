@@ -1,6 +1,7 @@
 /*
  * Modified by the Simple Backups Fabric project in 2026.
  * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ * Apache-2.0.
  */
 package de.melanx.simplebackups;
 
@@ -137,34 +138,11 @@ public class BackupThread extends Thread {
     }
 
     public void deleteFiles() {
-        if (this.manager.getChains().isEmpty()) {
-            return;
-        }
-
-        int maxChains = CommonConfig.getBackupsToKeep();
-        while (this.manager.getChains().size() > maxChains) {
-            BackupChain chain = this.manager.getFirstChain();
-            LOGGER.info("Deleting backup chain directory \"{}\"", chain.getParentFolder());
-            this.manager.removeChain(chain);
-        }
+        BackupRetention.limitChainCount(this.manager);
     }
 
     public void saveStorageSize() {
-        try {
-            while (this.manager.getFileSize() > CommonConfig.getMaxDiskSize()) {
-                List<BackupChain> chains = this.manager.getChains();
-                if (chains.size() <= 1) {
-                    LOGGER.error("Cannot delete old chains to save disk space. Only one chain directory left!");
-                    return;
-                }
-
-                BackupChain victim = chains.getFirst();
-                LOGGER.info("Deleting backup chain directory \"{}\" to save disk space", victim.getParentFolder());
-                this.manager.removeChain(victim);
-            }
-        } catch (NullPointerException e) {
-            LOGGER.error("Cannot delete old files to save disk space", e);
-        }
+        BackupRetention.limitStorageSize(this.manager);
     }
 
     @Override
