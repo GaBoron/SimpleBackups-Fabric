@@ -42,16 +42,18 @@ Source branches: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-Fabric
 
 ### GUI preview
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 Adds a **Restore** button to the singleplayer world selection screen. It can
 restore existing full, incremental and differential backups from the standard
 port in ZIP, ZSTD and SBK formats. Restore as a new world named after the original
 and the backup time, or replace the selected world while preserving the original.
 
-[Download GUI JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Source and usage](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | GUI version / source | Download |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [GitHub JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [GitHub JAR](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-Requires the same Fabric mods and Java version as the 26.3 port above. Install
+Each GUI version requires the same Fabric mods and Java version as its
+corresponding port above. Install
 this JAR in place of the standard port; keep only one SimpleBackups Fabric JAR
 in `mods`.
 

@@ -41,16 +41,17 @@ Minecraft のバージョンに合うリリースを選んでください。表�
 
 ### GUI プレビュー版
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 シングルプレイのワールド選択画面にバックアップの復元ボタンを追加します。
 通常の移植版で作成済みの ZIP、ZSTD、SBK 形式の完全・増分・差分バックアップを
 復元できます。元の名前とバックアップ時刻を付けた新しいワールドとして復元するか、
 元のワールドを保存したうえで選択中のワールドを置き換えることができます。
 
-[GUI の JAR をダウンロード](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [ソースと使い方](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | GUI バージョン / ソース | ダウンロード |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [GitHub の JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [GitHub の JAR](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-必要な Fabric Mod と Java のバージョンは、上の 26.3 移植版と同じです。
+必要な Fabric Mod と Java のバージョンは、上の対応する移植版と同じです。
 通常の移植版の JAR をこの JAR に置き換え、`mods` 内の SimpleBackups Fabric の
 JAR は一つだけにしてください。
 

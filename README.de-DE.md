@@ -43,18 +43,19 @@ Quellcode-Branches: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-Fab
 
 ### GUI-Vorschau
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 Fügt der Weltauswahl im Einzelspielermodus eine Schaltfläche zum Wiederherstellen
 von Backups hinzu. Unterstützt bestehende vollständige, inkrementelle und
 differenzielle Backups des regulären Ports in ZIP, ZSTD und SBK. Backups können
 als neue Welt mit ursprünglichem Namen und Backup-Zeitpunkt wiederhergestellt
 werden oder die ausgewählte Welt ersetzen; dabei bleibt die ursprüngliche Welt erhalten.
 
-[GUI-JAR herunterladen](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Quellcode und Nutzung](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | GUI-Version / Quellcode | Download |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [GitHub-JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [GitHub-JAR](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-Es gelten dieselben Fabric-Mod- und Java-Anforderungen wie beim oben aufgeführten
-Port für 26.3. Ersetze dessen JAR durch diese Version und behalte nur eine
+Für jede GUI-Version gelten die Anforderungen des entsprechenden Ports oben.
+Ersetze dessen JAR durch die GUI-Version und behalte nur eine
 SimpleBackups-Fabric-JAR im Ordner `mods`.
 
 ## Installation

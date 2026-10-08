@@ -41,17 +41,18 @@
 
 ### Предварительная версия с GUI
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 Добавляет кнопку восстановления резервных копий на экран выбора мира в одиночной
 игре. Поддерживает существующие полные, инкрементные и дифференциальные копии
 стандартного порта в форматах ZIP, ZSTD и SBK. Копию можно восстановить как новый
 мир с исходным именем и временем резервного копирования либо заменить выбранный
 мир, сохранив оригинал.
 
-[Скачать JAR с GUI](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Исходный код и использование](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | Версия с GUI / исходный код | Загрузка |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [JAR на GitHub](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [JAR на GitHub](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-Требования к модам Fabric и Java совпадают с версией для 26.3 в таблице выше.
+Требования к модам Fabric и Java совпадают с соответствующей версией в таблице выше.
 Замените JAR стандартной версии этим файлом и оставьте только один JAR
 SimpleBackups Fabric в папке `mods`.
 

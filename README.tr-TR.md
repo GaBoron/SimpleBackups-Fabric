@@ -41,17 +41,18 @@ Kaynak kodu dalları: [`fabric/26.3`](https://github.com/GaBoron/SimpleBackups-F
 
 ### GUI önizleme sürümü
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 Tek oyunculu dünya seçme ekranına yedekleri geri yükleme düğmesi ekler. Standart
 sürümle önceden oluşturulmuş ZIP, ZSTD ve SBK biçimindeki tam, artımlı ve
 diferansiyel yedekleri destekler. Yedeği özgün adı ve yedekleme zamanı ile
 adlandırılan yeni bir dünya olarak geri yükleyebilir veya özgün dünyayı koruyarak
 seçili dünyayı değiştirebilirsiniz.
 
-[GUI JAR dosyasını indir](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Kaynak kodu ve kullanım](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | GUI sürümü / kaynak kodu | İndirme |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [GitHub JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [GitHub JAR](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-Fabric modları ve Java gereksinimleri yukarıdaki 26.3 sürümüyle aynıdır.
+Fabric modları ve Java gereksinimleri yukarıdaki ilgili sürümle aynıdır.
 Standart sürümün JAR dosyasını bu dosyayla değiştirin; `mods` klasöründe yalnızca
 bir SimpleBackups Fabric JAR dosyası bulunsun.
 

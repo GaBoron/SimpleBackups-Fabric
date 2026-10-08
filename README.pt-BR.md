@@ -43,17 +43,18 @@ Branches do código-fonte: [`fabric/26.3`](https://github.com/GaBoron/SimpleBack
 
 ### Prévia da versão com GUI
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 Adiciona um botão de restauração de backups à seleção de mundos no modo de um
 jogador. Permite restaurar backups completos, incrementais e diferenciais já
 criados pela versão padrão nos formatos ZIP, ZSTD e SBK. Restaure como um novo
 mundo com o nome original e a data e hora do backup, ou substitua o mundo
 selecionado mantendo uma cópia do original.
 
-[Baixar JAR com GUI](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [Código-fonte e uso](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | Versão com GUI / código-fonte | Download |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [JAR no GitHub](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [JAR no GitHub](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-Os requisitos de mods Fabric e Java são os mesmos da versão para 26.3 acima.
+Os requisitos de mods Fabric e Java são os mesmos da versão correspondente acima.
 Substitua o JAR da versão padrão por este e mantenha apenas um JAR do
 SimpleBackups Fabric na pasta `mods`.
 

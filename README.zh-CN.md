@@ -40,15 +40,16 @@
 
 ### GUI 预览版
 
-**26.3.0-gui · Minecraft 26.3 · Fabric**
-
 在单人游戏的存档选择界面增加**恢复备份**按钮，可读取常规移植版已有的
 ZIP、ZSTD、SBK 完整、增量和差异备份。可以恢复为以“原名-备份时间”命名的新存档，
 也可以替换当前存档并保留原存档。
 
-[下载 GUI JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) · [源码与使用说明](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui)
+| Minecraft | GUI 版本 / 源码 | 下载 |
+| --- | --- | --- |
+| **26.3** | [26.3.0-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.3-gui) | [GitHub JAR](artifacts/26.3-gui/simplebackups-fabric-26.3.0-gui.jar) |
+| **26.1.x (26.1–26.1.2)** | [26.1.5-gui](https://github.com/GaBoron/SimpleBackups-Fabric/tree/fabric/26.1-gui) | [GitHub JAR](artifacts/26.1-gui/simplebackups-fabric-26.1.5-gui.jar) |
 
-前置 Mod 和 Java 要求与上方 26.3 移植版相同。安装时用此 JAR 替换常规移植版，
+各 GUI 版本的前置 Mod 和 Java 要求与上方对应的常规移植版相同。安装时用 GUI JAR 替换常规移植版，
 `mods` 中只保留一个 SimpleBackups Fabric JAR。
 
 ## 安装
