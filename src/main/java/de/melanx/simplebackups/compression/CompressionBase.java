@@ -1,6 +1,7 @@
 /*
  * Modified by the Simple Backups Fabric project in 2026.
  * This file was adapted from upstream SimpleBackups for the Fabric platform.
+ * Apache-2.0.
  */
 package de.melanx.simplebackups.compression;
 
@@ -49,16 +50,7 @@ public abstract class CompressionBase {
         }
 
         FileStore fileStore = Files.getFileStore(backupPath);
-        CompressionBase compressor = switch(format) {
-            case ZIP -> new ZipCompression(fileStore, doFullBackup, lastSaved);
-            case ZSTD -> {
-                if (!ZstdCompression.isAvailable()) {
-                    throw new IOException("ZSTD compression is selected but zstd-jni is not installed. Download it and place it in " + ToolsLoader.RELATIVE_TOOLS_DIR + ".");
-                }
-                yield new ZstdCompression(fileStore, doFullBackup, lastSaved);
-            }
-            case SBK -> new SbkCompression(fileStore, doFullBackup, lastSaved);
-        };
+        CompressionBase compressor = createCompressor(fileStore, doFullBackup, format, lastSaved);
 
         Path levelName = Paths.get(storageAccess.getLevelId());
         Path levelPath = server.getWorldPath(LevelResource.ROOT).toRealPath();
@@ -91,6 +83,26 @@ public abstract class CompressionBase {
     }
 
     public abstract void makeBackup(Path levelName, Path levelPath, Path outputFile) throws IOException;
+
+    /** A closed, locked world needs neither a running server nor a pre-copy. */
+    public static BackupResult makeFullBackup(Path world, String worldId, Path archive, BackupFormat format) throws IOException {
+        CompressionBase compressor = createCompressor(Files.getFileStore(archive.getParent()), true, format, 0);
+        compressor.makeBackup(Path.of(worldId), world, archive);
+        return new BackupResult(archive, Files.size(archive), List.copyOf(compressor.errors));
+    }
+
+    private static CompressionBase createCompressor(FileStore fileStore, boolean full, BackupFormat format, long lastSaved) throws IOException {
+        return switch (format) {
+            case ZIP -> new ZipCompression(fileStore, full, lastSaved);
+            case ZSTD -> {
+                if (!ZstdCompression.isAvailable()) {
+                    throw new IOException("ZSTD compression is selected but zstd-jni is not installed. Download it and place it in " + ToolsLoader.RELATIVE_TOOLS_DIR + ".");
+                }
+                yield new ZstdCompression(fileStore, full, lastSaved);
+            }
+            case SBK -> new SbkCompression(fileStore, full, lastSaved);
+        };
+    }
 
     public abstract String getExtension();
 

@@ -20,14 +20,13 @@
   "simplebackups.restore.type.incremental": "Incremental",
   "simplebackups.restore.type.differential": "Differential",
   "simplebackups.restore.confirm_copy": "Restore the backup of \"%s\" from %s as a new world? The current world will be kept.",
-  "simplebackups.restore.confirm_replace": "Replace \"%s\" with its backup from %s? Current progress will be replaced. The original world will be preserved in the simplebackups-restores folder before replacement.",
+  "simplebackups.restore.confirm_replace": "Replace \"%s\" with its backup from %s? Current progress will be replaced. A rollback backup will be created first and will follow the normal automatic cleanup rules.",
   "simplebackups.restore.world_open": "Close the world before restoring a backup.",
   "simplebackups.restore.working": "Restoring backup... Please wait.",
   "simplebackups.restore.failed_title": "Restoration failed",
-  "simplebackups.restore.failed": "The backup could not be restored. Check the game log for details. Any prepared files and preserved original world remain in simplebackups-restores.",
+  "simplebackups.restore.failed": "The backup could not be restored. Check the game log for details. Any completed rollback backup remains available in the backup list.",
   "simplebackups.restore.success_title": "Backup restored",
   "simplebackups.restore.success": "The restored world is ready: %s",
-  "simplebackups.restore.preserved": "Original world preserved at:\n%s",
   "simplebackups.backup_started": "Backup started...",
   "simplebackups.backup_finished": "Backup completed in %s (%s | %s)",
   "simplebackups.backup_errors": "%s error(s) occurred during backup",
@@ -39,7 +38,6 @@
   "simplebackups.commands.error": "There was an error while merging backups: %s",
   "simplebackups.commands.finished": "Merging backups completed successfully at %s",
   "simplebackups.not_enough_space": "Not enough space on disk to create backup. Aborted!",
-
   "simplebackups.configuration.noPlayerBackups": "Backups without Players",
   "simplebackups.configuration.noPlayerBackupCount": "No Player Backup Count",
   "simplebackups.configuration.noPlayerBackupTimer": "No Player Backup Timer",
@@ -70,5 +68,9 @@
   "simplebackups.configuration.mod_compat": "Mod Compat",
   "simplebackups.configuration.mc2discord": "Mc2Discord",
   "simplebackups.configuration.onlyFavorites": "Cherished Worlds",
-  "simplebackups.configuration.commandsCheatsDisabled": "Commands for Non-OP"
+  "simplebackups.configuration.commandsCheatsDisabled": "Commands for Non-OP",
+  "simplebackups.restore.type.before_restore": "Rollback",
+  "simplebackups.restore.rollback_tooltip": "Created before replacement. Follows the normal backup retention and storage limits.",
+  "simplebackups.restore.creating_rollback": "Backing up the current world...",
+  "simplebackups.restore.rollback_created": "The previous world is available in the backup list as Rollback:\n%s"
 }

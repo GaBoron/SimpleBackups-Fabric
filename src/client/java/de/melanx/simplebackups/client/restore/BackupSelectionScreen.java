@@ -99,6 +99,7 @@ public final class BackupSelectionScreen extends Screen {
                 Button row = Button.builder(rowLabel(point), ignored -> select(point))
                         .bounds(left, 66 + (i % rows) * 26, width, 24).build();
                 row.setTooltip(Tooltip.create(Component.literal(point.name()).append("\n")
+                        .append(point.beforeRestore() ? text("rollback_tooltip").copy().append("\n") : Component.empty())
                         .append(text("archives", point.archives().size()))));
                 addRenderableWidget(row);
                 this.rowButtons.put(point, row);
@@ -153,7 +154,7 @@ public final class BackupSelectionScreen extends Screen {
     private Component rowLabel(RestorePoint point) {
         return Component.literal(point.equals(this.selected) ? "> " : "")
                 .append(text("entry", DATE.format(Instant.ofEpochMilli(point.timestamp())),
-                        text("type." + point.type().name().toLowerCase(java.util.Locale.ROOT)),
+                        text(point.beforeRestore() ? "type.before_restore" : "type." + point.type().name().toLowerCase(java.util.Locale.ROOT)),
                         point.format().name(), StorageSize.getFormattedSize(point.size())));
     }
 
@@ -193,8 +194,8 @@ public final class BackupSelectionScreen extends Screen {
                         text("failed_title"), text("failed")));
             } else {
                 Component message = text("success", result.world().getFileName().toString());
-                if (result.previousWorld() != null) {
-                    message = message.copy().append("\n\n").append(text("preserved", result.previousWorld().toString()));
+                if (result.previousBackup() != null) {
+                    message = message.copy().append("\n\n").append(text("rollback_created", result.previousBackup().toString()));
                 }
                 this.minecraft.gui.setScreen(new AlertScreen(this::onClose, text("success_title"), message));
             }
@@ -208,7 +209,8 @@ public final class BackupSelectionScreen extends Screen {
         graphics.centeredText(this.font, this.world.getLevelName(), this.width / 2, 28, 0xFFAAAAAA);
         graphics.centeredText(this.font, this.status, this.width / 2, 46, 0xFFDDDDDD);
         if (this.restoring) {
-            String filename = this.font.plainSubstrByWidth(this.progress, this.width - 24);
+            String filename = this.font.plainSubstrByWidth(this.progress.equals("rollback")
+                    ? text("creating_rollback").getString() : this.progress, this.width - 24);
             graphics.centeredText(this.font, filename, this.width / 2, 78, 0xFFAAAAAA);
         } else if (!this.loading) {
             graphics.centeredText(this.font, text("page", this.page + 1, pageCount()), this.width / 2,
